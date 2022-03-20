@@ -83,7 +83,8 @@ public class Main extends JavaPlugin implements CommandExecutor {
     }
 
     private boolean codeIsValidForPlayer(Player player, int code) {
-        return authenticatorManager.getCodeRequests().containsKey(code) && authenticatorManager.getCodeRequests().get(code).equals(player.getUniqueId());
+        return authenticatorManager.getCodeRequests().containsKey(code)
+                && authenticatorManager.getCodeRequests().get(code).getPlayer().getUniqueId().equals(player.getUniqueId());
     }
 
     private void confirmAuthentication(Player player, int code) {
