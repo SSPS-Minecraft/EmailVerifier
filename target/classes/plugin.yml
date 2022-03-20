@@ -1,4 +1,4 @@
-name: EmailVerification
+name: EmailVerifier
 main: me.sarahlacerda.main.Main
 author: Sarah Lacerda
 version: 1.0
@@ -6,9 +6,9 @@ api-version: 1.17
 description: An email verification plugin
 commands:
   authenticate:
-    description: Command to authenticate your MC account with an e-mail
+    description: Command to request an authentication code for your MC account via an e-mail
     usage: /<command>
     aliases: [auth]
   code:
-    description: Command to authenticate your MC account with an e-mail
+    description: Command to verify your MC account with the code received via your e-mail
     usage: /<command>

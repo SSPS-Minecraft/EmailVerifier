@@ -1,7 +1,6 @@
 package me.sarahlacerda.main.manager;
 
 import me.sarahlacerda.main.email.EmailConfig;
-import me.sarahlacerda.main.task.EmailSentCooldownTask;
 import me.sarahlacerda.main.email.EmailService;
 import me.sarahlacerda.main.task.MailTask;
 import me.sarahlacerda.main.Plugin;
@@ -11,8 +10,11 @@ import org.bukkit.entity.Player;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -20,13 +22,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class AuthenticatorManager {
 
     private final EmailService emailService;
-    private final HashMap<Integer, UUID> codesInUse = new HashMap<Integer, UUID>();
+    private final Map<Integer, PlayerAuthRequest> codeRequests;
+
     private final EmailConfig emailConfig;
     private final AuthenticatedPlayers authenticatedPlayers;
 
     public AuthenticatorManager(EmailConfig emailConfig, AuthenticatedPlayers authenticatedPlayers) {
         this.emailConfig = emailConfig;
         this.authenticatedPlayers = authenticatedPlayers;
+        this.codeRequests = new HashMap<>();
         this.emailService = new EmailService(emailConfig.getHost(),
                 emailConfig.getPort(),
                 emailConfig.getUsername(),
@@ -35,11 +39,12 @@ public class AuthenticatorManager {
         );
     }
 
-    public boolean createTask(Player player, UUID userID, String email) {
+    public boolean createTask(Player player, String email) {
         if (playerAlreadyAuthenticated(player)) {
             player.sendMessage(ChatColor.RED + "You are already authenticated.");
         } else if (emailValid(email, player)) {
-            generateCode(player, userID, email);
+            getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
+                    .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
             return true;
         }
         return false;
@@ -49,28 +54,43 @@ public class AuthenticatorManager {
         return !authenticatedPlayers.getOnlineDefaultPlayers().contains(player);
     }
 
-    public HashMap<Integer, UUID> getCodesInUse() {
-        return codesInUse;
+    public Map<Integer, PlayerAuthRequest> getCodeRequests() {
+        return codeRequests;
     }
 
-    private void generateCode(Player player, UUID userID, String email) {
-        if (codesInUse.containsValue(userID)) {
-            handleEmailAlreadySent(player);
-        } else {
-            int code = generateCode();
-            new EmailSentCooldownTask(code, emailConfig.getEmailSentCooldownInSeconds(), this).runTask(Plugin.plugin);
-            AuthenticatedPlayers.emailCode.put(code, email);
-            codesInUse.put(code, userID);
-            sendMail(player, email, code);
+    private void generateCode(Player player, String email) {
+        int code = generateCode();
+        AuthenticatedPlayers.emailCode.put(code, email);
+        codeRequests.put(code, new PlayerAuthRequest(player, LocalDateTime.now()));
+        sendMail(player, email, code);
+    }
+
+    private Optional<Integer> getCodeIfPlayerHasAlreadyRequestedEmailBefore(Player player) {
+        for (Map.Entry<Integer, PlayerAuthRequest> entry : codeRequests.entrySet()) {
+            if (entry.getValue().getPlayer().getUniqueId().equals(player.getUniqueId())) {
+                return Optional.of(entry.getKey());
+            }
         }
-
+        return Optional.empty();
     }
 
-    private void handleEmailAlreadySent(Player player) {
-        if (timeInMinutes(emailConfig.getEmailSentCooldownInSeconds()) == 0) {
-            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + emailConfig.getEmailSentCooldownInSeconds() + " seconds before authenticating.");
+    private void handleEmailAlreadySent(Player player, String email, Integer code) {
+        PlayerAuthRequest playerAuthRequest = codeRequests.get(code);
+        long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(playerAuthRequest.getRequestSentAt(), LocalDateTime.now());
+
+        if (elapsedTimeSinceEmailWasSent > emailConfig.getEmailSentCooldownInSeconds()) {
+            codeRequests.remove(code);
+            generateCode(player, email);
         } else {
-            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + timeInMinutes(emailConfig.getEmailSentCooldownInSeconds()) + " minutes before authenticating.");
+            askPlayerToWaitMore(player, emailConfig.getEmailSentCooldownInSeconds() - elapsedTimeSinceEmailWasSent);
+        }
+    }
+
+    private void askPlayerToWaitMore(Player player, long waitHowLongInSeconds) {
+        if (timeInMinutes(waitHowLongInSeconds) == 0) {
+            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + waitHowLongInSeconds + " seconds before authenticating.");
+        } else {
+            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + timeInMinutes(waitHowLongInSeconds) + " minutes before authenticating.");
         }
     }
 
@@ -101,7 +121,7 @@ public class AuthenticatorManager {
     private int generateCode() {
         int code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
 
-        while (codesInUse.containsKey(code)) {
+        while (codeRequests.containsKey(code)) {
             code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
         }
 

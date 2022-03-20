@@ -49,7 +49,7 @@ public class Main extends JavaPlugin implements CommandExecutor {
         if (sender instanceof Player) {
             if (argumentsValid(args)) {
                 Player player = (Player) sender;
-                return authenticatorManager.createTask(player, player.getUniqueId(), args[0]);
+                return authenticatorManager.createTask(player, args[0]);
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid Arguments. Please use /authenticate [email]");
             }
@@ -83,7 +83,7 @@ public class Main extends JavaPlugin implements CommandExecutor {
     }
 
     private boolean codeIsValidForPlayer(Player player, int code) {
-        return authenticatorManager.getCodesInUse().containsKey(code) && authenticatorManager.getCodesInUse().get(code).equals(player.getUniqueId());
+        return authenticatorManager.getCodeRequests().containsKey(code) && authenticatorManager.getCodeRequests().get(code).equals(player.getUniqueId());
     }
 
     private void confirmAuthentication(Player player, int code) {
@@ -95,7 +95,7 @@ public class Main extends JavaPlugin implements CommandExecutor {
         configManager.savePlayers();
 
         AuthenticatedPlayers.emailCode.remove(code);
-        authenticatorManager.getCodesInUse().remove(code);
+        authenticatorManager.getCodeRequests().remove(code);
         unHidePlayer(player);
     }
 
@@ -106,7 +106,4 @@ public class Main extends JavaPlugin implements CommandExecutor {
         player.setPlayerListName(player.getDisplayName());
     }
 
-    private boolean playerAlreadyAuthenticated(Player player) {
-        return !authenticatedPlayers.getOnlineDefaultPlayers().contains(player);
-    }
 }
