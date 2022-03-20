@@ -1,4 +1,4 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.email;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -8,14 +8,14 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
-public class MailService {
+public class EmailService {
     private final String host;
     private final String from;
     private final String username;
     private final String password;
     private final Session session;
 
-    public MailService(String host, int port, String username, String password, String from) {
+    public EmailService(String host, int port, String username, String password, String from) {
         this.host = host;
         this.username = username;
         this.password = password;

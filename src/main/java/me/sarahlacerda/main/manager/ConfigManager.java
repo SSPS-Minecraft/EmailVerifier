@@ -1,6 +1,7 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.manager;
 
-import org.bukkit.Bukkit;
+import me.sarahlacerda.main.email.EmailConfig;
+import me.sarahlacerda.main.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,5 +1,8 @@
 package me.sarahlacerda.main;
 
+import me.sarahlacerda.main.listener.AuthenticatedPlayers;
+import me.sarahlacerda.main.manager.AuthenticatorManager;
+import me.sarahlacerda.main.manager.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

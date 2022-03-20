@@ -1,5 +1,11 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.manager;
 
+import me.sarahlacerda.main.email.EmailConfig;
+import me.sarahlacerda.main.task.EmailSentCooldownTask;
+import me.sarahlacerda.main.email.EmailService;
+import me.sarahlacerda.main.task.MailTask;
+import me.sarahlacerda.main.Plugin;
+import me.sarahlacerda.main.listener.AuthenticatedPlayers;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -13,7 +19,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class AuthenticatorManager {
 
-    private final MailService mailService;
+    private final EmailService emailService;
     private final HashMap<Integer, UUID> codesInUse = new HashMap<Integer, UUID>();
     private final EmailConfig emailConfig;
     private final AuthenticatedPlayers authenticatedPlayers;
@@ -21,7 +27,7 @@ public class AuthenticatorManager {
     public AuthenticatorManager(EmailConfig emailConfig, AuthenticatedPlayers authenticatedPlayers) {
         this.emailConfig = emailConfig;
         this.authenticatedPlayers = authenticatedPlayers;
-        this.mailService = new MailService(emailConfig.getHost(),
+        this.emailService = new EmailService(emailConfig.getHost(),
                 emailConfig.getPort(),
                 emailConfig.getUsername(),
                 emailConfig.getPassword(),
@@ -104,7 +110,7 @@ public class AuthenticatorManager {
 
     //Sends the e-mail to the player Asynchronously
     private void sendMail(Player p, String userEmail, int code) {
-        new MailTask(mailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Plugin.plugin);
+        new MailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Plugin.plugin);
     }
 
 }

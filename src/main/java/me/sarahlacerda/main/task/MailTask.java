@@ -1,22 +1,23 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.task;
 
 import javax.mail.MessagingException;
 
+import me.sarahlacerda.main.email.EmailService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class MailTask extends BukkitRunnable {
-    private final MailService mailService;
+    private final EmailService emailService;
     private final String messageTemplate;
     private final String subject;
     private final String recipientEmail;
     private final int code;
     private final Player player;
 
-    public MailTask(MailService mailService, String messageTemplate, Player player, String subject, String recipientEmail, int code) {
-        this.mailService = mailService;
+    public MailTask(EmailService emailService, String messageTemplate, Player player, String subject, String recipientEmail, int code) {
+        this.emailService = emailService;
         this.messageTemplate = messageTemplate;
         this.player = player;
         this.recipientEmail = recipientEmail;
@@ -27,7 +28,7 @@ public class MailTask extends BukkitRunnable {
     public void run() {
 
         try {
-            mailService.sendEmail(recipientEmail, subject, prepareMessage(messageTemplate, code));
+            emailService.sendEmail(recipientEmail, subject, prepareMessage(messageTemplate, code));
 
             player.sendMessage(ChatColor.GREEN + "A message with your code has been e-mailed to: " + recipientEmail);
             player.sendMessage(ChatColor.GREEN + "Once you receive your code type /code [code] to authenticate");

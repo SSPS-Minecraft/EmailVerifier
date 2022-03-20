@@ -1,4 +1,4 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.email;
 
 import java.util.List;
 

@@ -1,9 +1,11 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.listener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import me.sarahlacerda.main.manager.ConfigManager;
+import me.sarahlacerda.main.Plugin;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

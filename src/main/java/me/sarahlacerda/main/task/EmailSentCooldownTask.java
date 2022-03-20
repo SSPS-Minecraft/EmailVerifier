@@ -1,5 +1,7 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.task;
 
+import me.sarahlacerda.main.listener.AuthenticatedPlayers;
+import me.sarahlacerda.main.manager.AuthenticatorManager;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.LocalDateTime;
