@@ -1,11 +1,8 @@
 package me.sarahlacerda.main.listener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
-
-import me.sarahlacerda.main.manager.ConfigManager;
 import me.sarahlacerda.main.Plugin;
+import me.sarahlacerda.main.config.ConfigManager;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,18 +17,20 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import net.md_5.bungee.api.ChatColor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
-public class AuthenticatedPlayers implements Listener {
-    private ArrayList<Player> onlineDefaultPlayers;
+public class PlayerLoginListener implements Listener {
+    private ArrayList<Player> onlineUnauthenticatedPlayers;
 
     private final ConfigManager configManager;
 
     public static HashMap<Integer, String> emailCode = new HashMap<Integer, String>();
 
-    public AuthenticatedPlayers(ConfigManager configManager) {
+    public PlayerLoginListener(ConfigManager configManager) {
         this.configManager = configManager;
-        onlineDefaultPlayers = new ArrayList<>();
+        onlineUnauthenticatedPlayers = new ArrayList<>();
     }
 
     @EventHandler
@@ -39,12 +38,10 @@ public class AuthenticatedPlayers implements Listener {
         if (isPriorityPlayer(playerLoginEvent)) {
             if (isServerFull()) {
                 handleLoginWhenServerIsFull(playerLoginEvent);
-            }
-            else {
+            } else {
                 playerLoginEvent.allow();
             }
-        }
-        else {
+        } else {
             handleUnauthenticatedPlayer(playerLoginEvent);
         }
     }
@@ -52,7 +49,7 @@ public class AuthenticatedPlayers implements Listener {
     //Hide default players from new players.
     @EventHandler
     public void onJoin(PlayerJoinEvent playerJoinEvent) {
-        onlineDefaultPlayers
+        onlineUnauthenticatedPlayers
                 .stream()
                 .filter(player -> !playerJoinEvent.getPlayer().isOp())
                 .forEach(player -> playerJoinEvent.getPlayer().hidePlayer(Plugin.plugin, player))
@@ -64,13 +61,13 @@ public class AuthenticatedPlayers implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
         //If the player was an online default player, remove them
-        onlineDefaultPlayers.remove(e.getPlayer());
+        onlineUnauthenticatedPlayers.remove(e.getPlayer());
     }
 
     //Block all interaction from default players
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (onlineDefaultPlayers.contains(e.getPlayer())) {
+        if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
             e.getPlayer().sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
             e.setCancelled(true);
         }
@@ -79,7 +76,7 @@ public class AuthenticatedPlayers implements Listener {
     //Block all chat from default players
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
-        if (onlineDefaultPlayers.contains(e.getPlayer())) {
+        if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
             e.getPlayer().sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
             e.setCancelled(true);
         }
@@ -90,7 +87,7 @@ public class AuthenticatedPlayers implements Listener {
     public void onCollect(EntityPickupItemEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (onlineDefaultPlayers.contains(p)) {
+            if (onlineUnauthenticatedPlayers.contains(p)) {
                 e.setCancelled(true);
             }
         }
@@ -101,7 +98,7 @@ public class AuthenticatedPlayers implements Listener {
     public void onReceiveDamage(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (onlineDefaultPlayers.contains(p)) {
+            if (onlineUnauthenticatedPlayers.contains(p)) {
                 p.sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
                 e.setCancelled(true);
             }
@@ -114,7 +111,7 @@ public class AuthenticatedPlayers implements Listener {
         if (e.getDamager() instanceof Player) {
             Player p = (Player) e.getDamager();
 
-            if (onlineDefaultPlayers.contains(p)) {
+            if (onlineUnauthenticatedPlayers.contains(p)) {
                 p.sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
                 e.setCancelled(true);
             }
@@ -123,24 +120,25 @@ public class AuthenticatedPlayers implements Listener {
 
     //Hide default players from new players.
     @EventHandler
-    public void onEntityTarger(EntityTargetLivingEntityEvent e) {
+    public void onEntityTarget(EntityTargetLivingEntityEvent e) {
         if (e.getTarget() instanceof Player) {
             Player p = (Player) e.getTarget();
-            if (onlineDefaultPlayers.contains(p)) {
+            if (onlineUnauthenticatedPlayers.contains(p)) {
                 e.setCancelled(true);
                 e.setTarget(null);
             }
         }
     }
 
-    public ArrayList<Player> getOnlineDefaultPlayers() {
-        return onlineDefaultPlayers;
+    public ArrayList<Player> getOnlineUnauthenticatedPlayers() {
+        return onlineUnauthenticatedPlayers;
     }
 
     private void handleUnauthenticatedPlayer(PlayerLoginEvent playerLoginEvent) {
         if (isServerFull()) {
             playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + "The server is currently full");
         } else {
+            handlePlayerMessagesBasedOnContext(playerLoginEvent);
             playerLoginEvent.allow();
             //Hide the player
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -149,16 +147,26 @@ public class AuthenticatedPlayers implements Listener {
                     playerLoginEvent.getPlayer().setPlayerListName(null);
                 }
             }
-            onlineDefaultPlayers.add(playerLoginEvent.getPlayer());
+            onlineUnauthenticatedPlayers.add(playerLoginEvent.getPlayer());
             playerLoginEvent.getPlayer().setWalkSpeed(0.5f);
+        }
+    }
+
+    private void handlePlayerMessagesBasedOnContext(PlayerLoginEvent playerLoginEvent) {
+        if (isAlreadyRegistered(playerLoginEvent.getPlayer().getUniqueId())) {
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome back, " + playerLoginEvent.getPlayer().getName() + "! Please use /login <your password> to play");
+        } else if (alreadyEmailVerifiedButHasNoPasswordSet(playerLoginEvent.getPlayer().getUniqueId())) {
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome back, " + playerLoginEvent.getPlayer().getName() + "! Please use /password <your new password> <confirm your new password>> to register a login password!");
+        } else {
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome, " + playerLoginEvent.getPlayer().getName() + "! Please use /authenticate <your email> to verify yourself before playing");
         }
     }
 
     private void handleLoginWhenServerIsFull(PlayerLoginEvent playerLoginEvent) {
         //if the slot is being used by a default player
-        if (onlineDefaultPlayers.size() > 0) {
+        if (onlineUnauthenticatedPlayers.size() > 0) {
             //Kick the default player who was first and allow the login
-            onlineDefaultPlayers.get(0).kickPlayer(ChatColor.RED + "You were kicked to make room for an authenticated user");
+            onlineUnauthenticatedPlayers.get(0).kickPlayer(ChatColor.RED + "You were kicked to make room for an authenticated user");
             playerLoginEvent.allow();
         } else if (playerLoginEvent.getPlayer().isOp()) {
             playerLoginEvent.allow();
@@ -167,16 +175,20 @@ public class AuthenticatedPlayers implements Listener {
         }
     }
 
-    //If the player is authenticated, has bypass permission, or is an OP
+    //If the player has bypass permission, or is an OP
     private boolean isPriorityPlayer(PlayerLoginEvent playerLoginEvent) {
-        return isAuthenticated(playerLoginEvent.getPlayer().getUniqueId()) || playerLoginEvent.getPlayer().isOp() || playerLoginEvent.getPlayer().hasPermission("emailauth.bypass");
+        return playerLoginEvent.getPlayer().isOp() || playerLoginEvent.getPlayer().hasPermission("emailauth.bypass");
     }
 
     private boolean isServerFull() {
         return Bukkit.getServer().getMaxPlayers() == Bukkit.getOnlinePlayers().size();
     }
 
-    private boolean isAuthenticated(UUID userID) {
-        return configManager.getPlayers().contains("players." + userID.toString(), false);
+    public boolean isAlreadyRegistered(UUID playerUUID) {
+        return configManager.playersCfgContainsEntry(playerUUID.toString(), "password");
+    }
+
+    public boolean alreadyEmailVerifiedButHasNoPasswordSet(UUID playerUUID) {
+        return configManager.playersCfgContainsEntry(playerUUID.toString()) && !isAlreadyRegistered(playerUUID);
     }
 }

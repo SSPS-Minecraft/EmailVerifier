@@ -1,10 +1,11 @@
-me\sarahlacerda\main\listener\AuthenticatedPlayers.class
+me\sarahlacerda\main\config\ConfigManager.class
 me\sarahlacerda\main\Plugin.class
-me\sarahlacerda\main\task\EmailSentCooldownTask.class
-me\sarahlacerda\main\PlayerAuthRequest.class
+me\sarahlacerda\main\CommandOrchestrator.class
 me\sarahlacerda\main\email\EmailConfig.class
-me\sarahlacerda\main\manager\AuthenticatorManager.class
+me\sarahlacerda\main\listener\PlayerLoginListener.class
 me\sarahlacerda\main\Main.class
-me\sarahlacerda\main\manager\ConfigManager.class
+me\sarahlacerda\main\service\PasswordService.class
 me\sarahlacerda\main\email\EmailService.class
+me\sarahlacerda\main\service\PlayerVerificationRecord.class
+me\sarahlacerda\main\service\PlayerVerificationService.class
 me\sarahlacerda\main\task\MailTask.class

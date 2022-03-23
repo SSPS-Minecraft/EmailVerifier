@@ -1,10 +1,11 @@
-C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\listener\AuthenticatedPlayers.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\CommandOrchestrator.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\service\PlayerVerificationService.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\service\PasswordService.java
 C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\task\MailTask.java
-C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\task\EmailSentCooldownTask.java
-C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\manager\ConfigManager.java
-C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\PlayerAuthRequest.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\config\ConfigManager.java
 C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\Main.java
 C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\email\EmailService.java
-C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\manager\AuthenticatorManager.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\listener\PlayerLoginListener.java
 C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\email\EmailConfig.java
 C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\Plugin.java
+C:\Users\sarah\IdeaProjects\EmailVerifier\src\main\java\me\sarahlacerda\main\service\PlayerVerificationRecord.java

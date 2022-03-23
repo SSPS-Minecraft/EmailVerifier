@@ -1,10 +1,10 @@
-package me.sarahlacerda.main.manager;
+package me.sarahlacerda.main.service;
 
 import me.sarahlacerda.main.email.EmailConfig;
 import me.sarahlacerda.main.email.EmailService;
+import me.sarahlacerda.main.listener.PlayerLoginListener;
 import me.sarahlacerda.main.task.MailTask;
 import me.sarahlacerda.main.Plugin;
-import me.sarahlacerda.main.listener.AuthenticatedPlayers;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -19,17 +19,17 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class AuthenticatorManager {
+public class PlayerVerificationService {
 
     private final EmailService emailService;
-    private final Map<Integer, PlayerAuthRequest> codeRequests;
+    private final Map<Integer, PlayerVerificationRecord> codeRequests;
 
     private final EmailConfig emailConfig;
-    private final AuthenticatedPlayers authenticatedPlayers;
+    private final PlayerLoginListener playerLoginListener;
 
-    public AuthenticatorManager(EmailConfig emailConfig, AuthenticatedPlayers authenticatedPlayers) {
+    public PlayerVerificationService(EmailConfig emailConfig, PlayerLoginListener playerLoginListener) {
         this.emailConfig = emailConfig;
-        this.authenticatedPlayers = authenticatedPlayers;
+        this.playerLoginListener = playerLoginListener;
         this.codeRequests = new HashMap<>();
         this.emailService = new EmailService(emailConfig.getHost(),
                 emailConfig.getPort(),
@@ -51,22 +51,22 @@ public class AuthenticatorManager {
     }
 
     private boolean playerAlreadyAuthenticated(Player player) {
-        return !authenticatedPlayers.getOnlineDefaultPlayers().contains(player);
+        return !playerLoginListener.getOnlineUnauthenticatedPlayers().contains(player);
     }
 
-    public Map<Integer, PlayerAuthRequest> getCodeRequests() {
+    public Map<Integer, PlayerVerificationRecord> getCodeRequests() {
         return codeRequests;
     }
 
     private void generateCode(Player player, String email) {
         int code = generateCode();
-        AuthenticatedPlayers.emailCode.put(code, email);
-        codeRequests.put(code, new PlayerAuthRequest(player, LocalDateTime.now()));
+        PlayerLoginListener.emailCode.put(code, email);
+        codeRequests.put(code, new PlayerVerificationRecord(player, LocalDateTime.now()));
         sendMail(player, email, code);
     }
 
     private Optional<Integer> getCodeIfPlayerHasAlreadyRequestedEmailBefore(Player player) {
-        for (Map.Entry<Integer, PlayerAuthRequest> entry : codeRequests.entrySet()) {
+        for (Map.Entry<Integer, PlayerVerificationRecord> entry : codeRequests.entrySet()) {
             if (entry.getValue().getPlayer().getUniqueId().equals(player.getUniqueId())) {
                 return Optional.of(entry.getKey());
             }
@@ -75,8 +75,8 @@ public class AuthenticatorManager {
     }
 
     private void handleEmailAlreadySent(Player player, String email, Integer code) {
-        PlayerAuthRequest playerAuthRequest = codeRequests.get(code);
-        long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(playerAuthRequest.getRequestSentAt(), LocalDateTime.now());
+        PlayerVerificationRecord playerVerificationRecord = codeRequests.get(code);
+        long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(playerVerificationRecord.getRequestSentAt(), LocalDateTime.now());
 
         if (elapsedTimeSinceEmailWasSent > emailConfig.getEmailSentCooldownInSeconds()) {
             codeRequests.remove(code);
