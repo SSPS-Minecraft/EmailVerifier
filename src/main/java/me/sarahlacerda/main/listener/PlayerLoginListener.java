@@ -1,5 +1,6 @@
 package me.sarahlacerda.main.listener;
 
+import me.sarahlacerda.main.ConsoleMessages;
 import me.sarahlacerda.main.Plugin;
 import me.sarahlacerda.main.config.ConfigManager;
 import net.md_5.bungee.api.ChatColor;
@@ -20,6 +21,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+
+import static java.text.MessageFormat.format;
+import static me.sarahlacerda.main.ConsoleMessages.KICKED_TO_MAKE_ROOM;
+import static me.sarahlacerda.main.ConsoleMessages.NOT_AUTHENTICATED;
+import static me.sarahlacerda.main.ConsoleMessages.SERVER_IS_FULL;
+import static me.sarahlacerda.main.ConsoleMessages.WELCOME_BACK_ALREADY_REGISTERED;
+import static me.sarahlacerda.main.ConsoleMessages.WELCOME_BACK_NO_PASSWORD_SET;
+import static me.sarahlacerda.main.ConsoleMessages.WELCOME_NEW_PLAYER;
+import static me.sarahlacerda.main.ConsoleMessages.get;
 
 public class PlayerLoginListener implements Listener {
     private ArrayList<Player> onlineUnauthenticatedPlayers;
@@ -68,7 +78,7 @@ public class PlayerLoginListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
-            e.getPlayer().sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
+            e.getPlayer().sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
             e.setCancelled(true);
         }
     }
@@ -77,7 +87,7 @@ public class PlayerLoginListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
-            e.getPlayer().sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
+            e.getPlayer().sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
             e.setCancelled(true);
         }
     }
@@ -99,7 +109,7 @@ public class PlayerLoginListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (onlineUnauthenticatedPlayers.contains(p)) {
-                p.sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
+                p.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
                 e.setCancelled(true);
             }
         }
@@ -112,7 +122,7 @@ public class PlayerLoginListener implements Listener {
             Player p = (Player) e.getDamager();
 
             if (onlineUnauthenticatedPlayers.contains(p)) {
-                p.sendMessage(ChatColor.RED + "You are not authenticated. Type /authenticate [email] to authenticate");
+                p.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
                 e.setCancelled(true);
             }
         }
@@ -136,7 +146,7 @@ public class PlayerLoginListener implements Listener {
 
     private void handleUnauthenticatedPlayer(PlayerLoginEvent playerLoginEvent) {
         if (isServerFull()) {
-            playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + "The server is currently full");
+            playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + get(SERVER_IS_FULL));
         } else {
             handlePlayerMessagesBasedOnContext(playerLoginEvent);
             playerLoginEvent.allow();
@@ -154,11 +164,11 @@ public class PlayerLoginListener implements Listener {
 
     private void handlePlayerMessagesBasedOnContext(PlayerLoginEvent playerLoginEvent) {
         if (isAlreadyRegistered(playerLoginEvent.getPlayer().getUniqueId())) {
-            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome back, " + playerLoginEvent.getPlayer().getName() + "! Please use /login <your password> to play");
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + format(get(WELCOME_BACK_ALREADY_REGISTERED), playerLoginEvent.getPlayer().getName()));
         } else if (alreadyEmailVerifiedButHasNoPasswordSet(playerLoginEvent.getPlayer().getUniqueId())) {
-            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome back, " + playerLoginEvent.getPlayer().getName() + "! Please use /password <your new password> <confirm your new password>> to register a login password!");
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + format(get(WELCOME_BACK_NO_PASSWORD_SET), playerLoginEvent.getPlayer().getName()));
         } else {
-            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + "Welcome, " + playerLoginEvent.getPlayer().getName() + "! Please use /authenticate <your email> to verify yourself before playing");
+            playerLoginEvent.getPlayer().sendMessage(ChatColor.BLUE + format(get(WELCOME_NEW_PLAYER), playerLoginEvent.getPlayer().getName()));
         }
     }
 
@@ -166,12 +176,12 @@ public class PlayerLoginListener implements Listener {
         //if the slot is being used by a default player
         if (onlineUnauthenticatedPlayers.size() > 0) {
             //Kick the default player who was first and allow the login
-            onlineUnauthenticatedPlayers.get(0).kickPlayer(ChatColor.RED + "You were kicked to make room for an authenticated user");
+            onlineUnauthenticatedPlayers.get(0).kickPlayer(ChatColor.RED + ConsoleMessages.get(KICKED_TO_MAKE_ROOM));
             playerLoginEvent.allow();
         } else if (playerLoginEvent.getPlayer().isOp()) {
             playerLoginEvent.allow();
         } else {
-            playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + "The server is currently full");
+            playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + ConsoleMessages.get(SERVER_IS_FULL));
         }
     }
 

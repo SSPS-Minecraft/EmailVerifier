@@ -45,7 +45,7 @@ public class Main extends JavaPlugin {
 
     private void configureCommands() {
         CommandOrchestrator commandOrchestrator = new CommandOrchestrator(playerVerificationService, playerLoginListener, initPasswordService(), configManager);
-        this.getCommand("authenticate").setExecutor(commandOrchestrator);
+        this.getCommand("register").setExecutor(commandOrchestrator);
         this.getCommand("code").setExecutor(commandOrchestrator);
         this.getCommand("password").setExecutor(commandOrchestrator);
         this.getCommand("resetpassword").setExecutor(commandOrchestrator);

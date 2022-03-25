@@ -1,0 +1,37 @@
+language: en-us
+
+messages:
+
+  en-us:
+    already_registered: "You are already registered! Use /login <your password>"
+    email_already_sent_wait_seconds: "An e-mail has already been sent. Please wait {0} seconds before sending another one"
+    email_already_sent_wait_minutes: "An e-mail has already been sent. Please wait {0} minutes before sending another one"
+    email_not_valid: "The email entered is not valid. Please try again"
+    email_not_allowed: "The email entered is not allowed in this server. Please try again."
+    new_otp_generated: "A new One Time Code has been sent to the e-mail address you provided, please use /code <code> with the code received in your e-mail to reset your password"
+    no_password_set_yet: "You haven't set a password yet. Please use /password <your password> <confirm password> to create your password"
+    must_verify_email_before_resetting_password: "You must verify your email before you can reset a password! Please use /register <your email address> to do so!"
+    passwords_do_not_match: "Passwords do not match! Please try again. Usage: /password <your password> <confirm password>"
+    invalid_password_arguments: "Invalid Arguments. Please use /password <your password> <confirm password>"
+    forgot_password_hint: "If you forgot your password, please use /resetpassword"
+    must_verify_email_before_setting_password: "You must verify your email before you can create a password! Please use /register <your email address> to do so!"
+    password_created_welcome: "Your password has been created successfully!. Thank you and Welcome! :D"
+    login_back_hint: "Every time you log back into this server, just use /login <your password> to login"
+    invalid_register_arguments: "Invalid Arguments. Please use /register <email>"
+    invalid_code_arguments: "Invalid Arguments. Please use /code <code>"
+    invalid_code_entered: "You have entered an invalid code"
+    email_verified: "You have been verified!. Please use /password <your new password> <confirm your new password>> to register a login password!"
+    not_authenticated: "You are not authenticated. Type /login <your password> to login or use /register <email> if it's your first time here"
+    server_is_full: "The server is currently full"
+    welcome_back_already_registered: "Welcome back, {0}! Please use /login <your password> to start playing"
+    welcome_back_no_password_set: "Welcome back, {0}! Please use /password <your new password> <confirm your new password>> to register a login password before you start playing"
+    welcome_new_player: "Welcome, {0}! In order to play on this server, you must register an account! Please type /register <your email> to verify yourself"
+    kicked_to_make_room: "You were kicked to make room for an authenticated user"
+    you_are_in: "You're in!. Welcome back! :D"
+    wrong_password: "Wrong password! Please try again. If you forgot your password, you can reset it by using /resetpassword"
+    must_verify_email_before_login: "You must verify your email before you can login! Please use /register <your email address> to do so!"
+    invalid_login_arguments: "Invalid Arguments. Please use /login <your password> to login"
+
+
+  pt-br:
+    already_registered: "Voce ja esta registrad@! Use /login <sua senha> para comecar a jogar"

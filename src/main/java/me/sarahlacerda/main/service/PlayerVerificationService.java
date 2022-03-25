@@ -1,10 +1,11 @@
 package me.sarahlacerda.main.service;
 
+import me.sarahlacerda.main.ConsoleMessages;
+import me.sarahlacerda.main.Plugin;
 import me.sarahlacerda.main.email.EmailConfig;
 import me.sarahlacerda.main.email.EmailService;
 import me.sarahlacerda.main.listener.PlayerLoginListener;
 import me.sarahlacerda.main.task.MailTask;
-import me.sarahlacerda.main.Plugin;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -17,7 +18,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static java.text.MessageFormat.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static me.sarahlacerda.main.ConsoleMessages.ALREADY_REGISTERED;
+import static me.sarahlacerda.main.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_MINUTES;
+import static me.sarahlacerda.main.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_SECONDS;
+import static me.sarahlacerda.main.ConsoleMessages.EMAIL_NOT_ALLOWED;
+import static me.sarahlacerda.main.ConsoleMessages.EMAIL_NOT_VALID;
+import static me.sarahlacerda.main.ConsoleMessages.get;
 
 public class PlayerVerificationService {
 
@@ -41,7 +49,7 @@ public class PlayerVerificationService {
 
     public boolean createTask(Player player, String email) {
         if (playerAlreadyAuthenticated(player)) {
-            player.sendMessage(ChatColor.RED + "You are already authenticated.");
+            player.sendMessage(ALREADY_REGISTERED.getReference());
         } else if (emailValid(email, player)) {
             getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
                     .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
@@ -88,9 +96,9 @@ public class PlayerVerificationService {
 
     private void askPlayerToWaitMore(Player player, long waitHowLongInSeconds) {
         if (timeInMinutes(waitHowLongInSeconds) == 0) {
-            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + waitHowLongInSeconds + " seconds before authenticating.");
+            player.sendMessage(ChatColor.RED + format(get(EMAIL_ALREADY_SENT_WAIT_SECONDS), waitHowLongInSeconds));
         } else {
-            player.sendMessage(ChatColor.RED + "An e-mail has already been sent. Please wait " + timeInMinutes(waitHowLongInSeconds) + " minutes before authenticating.");
+            player.sendMessage(ChatColor.RED + format(get(EMAIL_ALREADY_SENT_WAIT_MINUTES), timeInMinutes(waitHowLongInSeconds)));
         }
     }
 
@@ -102,12 +110,12 @@ public class PlayerVerificationService {
         try {
             new InternetAddress(email).validate();
         } catch (AddressException e) {
-            player.sendMessage(ChatColor.RED + "The email entered is not valid. Please try again.");
+            player.sendMessage(ChatColor.RED + get(EMAIL_NOT_VALID));
             return false;
         }
 
         if (emailNotPartOfListOfAllowedExtensions(email)) {
-            player.sendMessage(ChatColor.RED + "The email entered is not a valid email for authentication. Please try again.");
+            player.sendMessage(ChatColor.RED + ConsoleMessages.get(EMAIL_NOT_ALLOWED));
             return false;
         }
         return true;

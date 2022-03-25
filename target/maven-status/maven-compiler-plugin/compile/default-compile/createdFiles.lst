@@ -1,5 +1,6 @@
 me\sarahlacerda\main\config\ConfigManager.class
 me\sarahlacerda\main\Plugin.class
+me\sarahlacerda\main\ConsoleMessages.class
 me\sarahlacerda\main\CommandOrchestrator.class
 me\sarahlacerda\main\email\EmailConfig.class
 me\sarahlacerda\main\listener\PlayerLoginListener.class
