@@ -142,10 +142,10 @@ public class PlayerVerificationService {
     }
 
     private int generateCode() {
-        int code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
+        int code = ThreadLocalRandom.current().nextInt(100000, 999999 + 1);
 
         while (verificationCodes.containsKey(code)) {
-            code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
+            code = ThreadLocalRandom.current().nextInt(100000, 999999 + 1);
         }
 
         return code;
