@@ -1,10 +1,9 @@
 package me.sarahlacerda.main.service;
 
-import me.sarahlacerda.main.ConsoleMessages;
-import me.sarahlacerda.main.Plugin;
-import me.sarahlacerda.main.email.EmailConfig;
-import me.sarahlacerda.main.email.EmailService;
-import me.sarahlacerda.main.listener.PlayerLoginListener;
+import me.sarahlacerda.main.Main;
+import me.sarahlacerda.main.PlayerRegister;
+import me.sarahlacerda.main.config.EmailConfig;
+import me.sarahlacerda.main.message.ConsoleMessages;
 import me.sarahlacerda.main.task.MailTask;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -20,62 +19,78 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static java.text.MessageFormat.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static me.sarahlacerda.main.ConsoleMessages.ALREADY_REGISTERED;
-import static me.sarahlacerda.main.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_MINUTES;
-import static me.sarahlacerda.main.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_SECONDS;
-import static me.sarahlacerda.main.ConsoleMessages.EMAIL_NOT_ALLOWED;
-import static me.sarahlacerda.main.ConsoleMessages.EMAIL_NOT_VALID;
-import static me.sarahlacerda.main.ConsoleMessages.get;
+import static me.sarahlacerda.main.message.ConsoleMessages.ALREADY_REGISTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_MINUTES;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_SECONDS;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_ALLOWED;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_VALID;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_VERIFIED;
+import static me.sarahlacerda.main.message.ConsoleMessages.INVALID_CODE_ENTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerVerificationService {
 
+    private final PlayerRegister playerRegister;
     private final EmailService emailService;
-    private final Map<Integer, PlayerVerificationRecord> codeRequests;
-
     private final EmailConfig emailConfig;
-    private final PlayerLoginListener playerLoginListener;
+    private final Map<Integer, PlayerVerificationRecord> verificationCodes;
 
-    public PlayerVerificationService(EmailConfig emailConfig, PlayerLoginListener playerLoginListener) {
+    public PlayerVerificationService(PlayerRegister playerRegister, EmailService emailService, EmailConfig emailConfig) {
+        this.playerRegister = playerRegister;
         this.emailConfig = emailConfig;
-        this.playerLoginListener = playerLoginListener;
-        this.codeRequests = new HashMap<>();
-        this.emailService = new EmailService(emailConfig.getHost(),
-                emailConfig.getPort(),
-                emailConfig.getUsername(),
-                emailConfig.getPassword(),
-                emailConfig.getFromEmail()
-        );
+        this.emailService = emailService;
+        this.verificationCodes = new HashMap<>();
     }
 
-    public boolean createTask(Player player, String email) {
-        if (playerAlreadyAuthenticated(player)) {
+    public boolean registerEmail(Player player, String email) {
+        if (playerAlreadyRegisteredEmail(player)) {
             player.sendMessage(ALREADY_REGISTERED.getReference());
-        } else if (emailValid(email, player)) {
+            return false;
+        }
+
+        if (emailValid(email, player)) {
             getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
                     .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
+        }
+
+        return true;
+    }
+
+    public boolean validateCodeForPlayer(Player player, int code) {
+        if (codeIsValidForPlayer(player, code)) {
+            confirmEmailVerification(player, code);
             return true;
         }
+
+        player.sendMessage(ChatColor.RED + get(INVALID_CODE_ENTERED));
         return false;
     }
 
-    private boolean playerAlreadyAuthenticated(Player player) {
-        return !playerLoginListener.getOnlineUnauthenticatedPlayers().contains(player);
+    private boolean codeIsValidForPlayer(Player player, int code) {
+        return verificationCodes.containsKey(code) && verificationCodes.get(code).player().getUniqueId().equals(player.getUniqueId());
     }
 
-    public Map<Integer, PlayerVerificationRecord> getCodeRequests() {
-        return codeRequests;
+    private void confirmEmailVerification(Player player, int code) {
+        player.sendMessage(ChatColor.GREEN + get(EMAIL_VERIFIED));
+
+        playerRegister.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
+
+        verificationCodes.remove(code);
+    }
+
+    private boolean playerAlreadyRegisteredEmail(Player player) {
+        return playerRegister.playersCfgContainsEntry(player.getUniqueId().toString());
     }
 
     private void generateCode(Player player, String email) {
         int code = generateCode();
-        PlayerLoginListener.emailCode.put(code, email);
-        codeRequests.put(code, new PlayerVerificationRecord(player, LocalDateTime.now()));
+        verificationCodes.put(code, new PlayerVerificationRecord(player, email, LocalDateTime.now()));
         sendMail(player, email, code);
     }
 
     private Optional<Integer> getCodeIfPlayerHasAlreadyRequestedEmailBefore(Player player) {
-        for (Map.Entry<Integer, PlayerVerificationRecord> entry : codeRequests.entrySet()) {
-            if (entry.getValue().getPlayer().getUniqueId().equals(player.getUniqueId())) {
+        for (Map.Entry<Integer, PlayerVerificationRecord> entry : verificationCodes.entrySet()) {
+            if (entry.getValue().player().getUniqueId().equals(player.getUniqueId())) {
                 return Optional.of(entry.getKey());
             }
         }
@@ -83,11 +98,10 @@ public class PlayerVerificationService {
     }
 
     private void handleEmailAlreadySent(Player player, String email, Integer code) {
-        PlayerVerificationRecord playerVerificationRecord = codeRequests.get(code);
-        long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(playerVerificationRecord.getRequestSentAt(), LocalDateTime.now());
+        long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(verificationCodes.get(code).requestSentAt(), LocalDateTime.now());
 
         if (elapsedTimeSinceEmailWasSent > emailConfig.getEmailSentCooldownInSeconds()) {
-            codeRequests.remove(code);
+            verificationCodes.remove(code);
             generateCode(player, email);
         } else {
             askPlayerToWaitMore(player, emailConfig.getEmailSentCooldownInSeconds() - elapsedTimeSinceEmailWasSent);
@@ -129,7 +143,7 @@ public class PlayerVerificationService {
     private int generateCode() {
         int code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
 
-        while (codeRequests.containsKey(code)) {
+        while (verificationCodes.containsKey(code)) {
             code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
         }
 
@@ -138,7 +152,7 @@ public class PlayerVerificationService {
 
     //Sends the e-mail to the player Asynchronously
     private void sendMail(Player p, String userEmail, int code) {
-        new MailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Plugin.plugin);
+        new MailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Main.plugin);
     }
 
 }

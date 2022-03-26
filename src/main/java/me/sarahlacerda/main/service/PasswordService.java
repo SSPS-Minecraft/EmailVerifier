@@ -4,12 +4,21 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static java.text.MessageFormat.format;
+import static me.sarahlacerda.main.Logger.getLogger;
+
 public class PasswordService {
 
     private final MessageDigest messageDigest;
 
-    public PasswordService() throws NoSuchAlgorithmException {
-        messageDigest = MessageDigest.getInstance("SHA3-256");
+    public PasswordService(String algorithm) {
+        try {
+            messageDigest = MessageDigest.getInstance(algorithm);
+            getLogger().info(format("Using {0} encryption for player passwords", algorithm));
+        } catch (NoSuchAlgorithmException e) {
+            getLogger().warn(format("Chosen Password Algorithm \"{0}\" is not valid!", algorithm));
+            throw new RuntimeException(e);
+        }
     }
 
     public String generateHashFor(String plainTextPassword) {

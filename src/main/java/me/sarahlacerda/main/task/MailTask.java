@@ -2,7 +2,7 @@ package me.sarahlacerda.main.task;
 
 import javax.mail.MessagingException;
 
-import me.sarahlacerda.main.email.EmailService;
+import me.sarahlacerda.main.service.EmailService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

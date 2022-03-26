@@ -1,4 +1,4 @@
-package me.sarahlacerda.main.email;
+package me.sarahlacerda.main.service;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;

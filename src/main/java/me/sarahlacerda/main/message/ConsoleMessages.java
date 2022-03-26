@@ -1,7 +1,6 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.message;
 
-import me.sarahlacerda.main.config.ConfigManager;
-
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,12 +59,12 @@ public enum ConsoleMessages {
         return consoleMessages.get(consoleMessage.getReference()).getMessage();
     }
 
-    public static void initConsoleMessages(ConfigManager configManager) {
+    public static void initConsoleMessages(MessageManager messageManager) {
         consoleMessages = new HashMap<>();
 
-        for (ConsoleMessages consoleMessage : ConsoleMessages.values()) {
-            consoleMessage.setMessage(configManager.getMessageFromLanguageFile(consoleMessage.getReference()));
+        Arrays.stream(ConsoleMessages.values()).forEach(consoleMessage -> {
+            consoleMessage.setMessage(messageManager.getMessage(consoleMessage.getReference()));
             consoleMessages.put(consoleMessage.getReference(), consoleMessage);
-        }
+        });
     }
 }

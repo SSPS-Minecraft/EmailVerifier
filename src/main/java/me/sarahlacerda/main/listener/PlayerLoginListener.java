@@ -1,8 +1,8 @@
 package me.sarahlacerda.main.listener;
 
-import me.sarahlacerda.main.ConsoleMessages;
-import me.sarahlacerda.main.Plugin;
-import me.sarahlacerda.main.config.ConfigManager;
+import me.sarahlacerda.main.Main;
+import me.sarahlacerda.main.PlayerRegister;
+import me.sarahlacerda.main.message.ConsoleMessages;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,29 +18,23 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
 
 import static java.text.MessageFormat.format;
-import static me.sarahlacerda.main.ConsoleMessages.KICKED_TO_MAKE_ROOM;
-import static me.sarahlacerda.main.ConsoleMessages.NOT_AUTHENTICATED;
-import static me.sarahlacerda.main.ConsoleMessages.SERVER_IS_FULL;
-import static me.sarahlacerda.main.ConsoleMessages.WELCOME_BACK_ALREADY_REGISTERED;
-import static me.sarahlacerda.main.ConsoleMessages.WELCOME_BACK_NO_PASSWORD_SET;
-import static me.sarahlacerda.main.ConsoleMessages.WELCOME_NEW_PLAYER;
-import static me.sarahlacerda.main.ConsoleMessages.get;
+import static me.sarahlacerda.main.message.ConsoleMessages.KICKED_TO_MAKE_ROOM;
+import static me.sarahlacerda.main.message.ConsoleMessages.NOT_AUTHENTICATED;
+import static me.sarahlacerda.main.message.ConsoleMessages.SERVER_IS_FULL;
+import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_BACK_ALREADY_REGISTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_BACK_NO_PASSWORD_SET;
+import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_NEW_PLAYER;
+import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerLoginListener implements Listener {
-    private ArrayList<Player> onlineUnauthenticatedPlayers;
 
-    private final ConfigManager configManager;
+    private final PlayerRegister playerRegister;
 
-    public static HashMap<Integer, String> emailCode = new HashMap<Integer, String>();
-
-    public PlayerLoginListener(ConfigManager configManager) {
-        this.configManager = configManager;
-        onlineUnauthenticatedPlayers = new ArrayList<>();
+    public PlayerLoginListener(PlayerRegister playerRegister) {
+        this.playerRegister = playerRegister;
     }
 
     @EventHandler
@@ -59,10 +53,10 @@ public class PlayerLoginListener implements Listener {
     //Hide default players from new players.
     @EventHandler
     public void onJoin(PlayerJoinEvent playerJoinEvent) {
-        onlineUnauthenticatedPlayers
+        playerRegister.getOnlineUnauthenticatedPlayers()
                 .stream()
                 .filter(player -> !playerJoinEvent.getPlayer().isOp())
-                .forEach(player -> playerJoinEvent.getPlayer().hidePlayer(Plugin.plugin, player))
+                .forEach(player -> playerJoinEvent.getPlayer().hidePlayer(Main.plugin, player))
         ;
     }
 
@@ -71,13 +65,13 @@ public class PlayerLoginListener implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
         //If the player was an online default player, remove them
-        onlineUnauthenticatedPlayers.remove(e.getPlayer());
+        playerRegister.getOnlineUnauthenticatedPlayers().remove(e.getPlayer());
     }
 
     //Block all interaction from default players
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
-        if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
+        if (playerRegister.getOnlineUnauthenticatedPlayers().contains(e.getPlayer())) {
             e.getPlayer().sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
             e.setCancelled(true);
         }
@@ -86,7 +80,7 @@ public class PlayerLoginListener implements Listener {
     //Block all chat from default players
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
-        if (onlineUnauthenticatedPlayers.contains(e.getPlayer())) {
+        if (playerRegister.getOnlineUnauthenticatedPlayers().contains(e.getPlayer())) {
             e.getPlayer().sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
             e.setCancelled(true);
         }
@@ -97,7 +91,7 @@ public class PlayerLoginListener implements Listener {
     public void onCollect(EntityPickupItemEvent e) {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if (onlineUnauthenticatedPlayers.contains(p)) {
+            if (playerRegister.getOnlineUnauthenticatedPlayers().contains(p)) {
                 e.setCancelled(true);
             }
         }
@@ -105,43 +99,36 @@ public class PlayerLoginListener implements Listener {
 
     //Prevent default players from receiving damage
     @EventHandler
-    public void onReceiveDamage(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            if (onlineUnauthenticatedPlayers.contains(p)) {
-                p.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
-                e.setCancelled(true);
+    public void onReceiveDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (playerRegister.getOnlineUnauthenticatedPlayers().contains(player)) {
+                player.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
+                event.setCancelled(true);
             }
         }
     }
 
     //Prevent default players from dealing damage
     @EventHandler
-    public void onDealDamage(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player) {
-            Player p = (Player) e.getDamager();
+    public void onDealDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
 
-            if (onlineUnauthenticatedPlayers.contains(p)) {
-                p.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
-                e.setCancelled(true);
+            if (playerRegister.getOnlineUnauthenticatedPlayers().contains(player)) {
+                player.sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
+                event.setCancelled(true);
             }
         }
     }
 
     //Hide default players from new players.
     @EventHandler
-    public void onEntityTarget(EntityTargetLivingEntityEvent e) {
-        if (e.getTarget() instanceof Player) {
-            Player p = (Player) e.getTarget();
-            if (onlineUnauthenticatedPlayers.contains(p)) {
-                e.setCancelled(true);
-                e.setTarget(null);
+    public void onEntityTarget(EntityTargetLivingEntityEvent event) {
+        if (event.getTarget() instanceof Player player) {
+            if (playerRegister.getOnlineUnauthenticatedPlayers().contains(player)) {
+                event.setCancelled(true);
+                event.setTarget(null);
             }
         }
-    }
-
-    public ArrayList<Player> getOnlineUnauthenticatedPlayers() {
-        return onlineUnauthenticatedPlayers;
     }
 
     private void handleUnauthenticatedPlayer(PlayerLoginEvent playerLoginEvent) {
@@ -151,13 +138,13 @@ public class PlayerLoginListener implements Listener {
             handlePlayerMessagesBasedOnContext(playerLoginEvent);
             playerLoginEvent.allow();
             //Hide the player
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.isOp()) {
-                    p.hidePlayer(Plugin.plugin, playerLoginEvent.getPlayer());
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!player.isOp()) {
+                    player.hidePlayer(Main.plugin, playerLoginEvent.getPlayer());
                     playerLoginEvent.getPlayer().setPlayerListName(null);
                 }
             }
-            onlineUnauthenticatedPlayers.add(playerLoginEvent.getPlayer());
+            playerRegister.getOnlineUnauthenticatedPlayers().add(playerLoginEvent.getPlayer());
             playerLoginEvent.getPlayer().setWalkSpeed(0.5f);
         }
     }
@@ -174,9 +161,9 @@ public class PlayerLoginListener implements Listener {
 
     private void handleLoginWhenServerIsFull(PlayerLoginEvent playerLoginEvent) {
         //if the slot is being used by a default player
-        if (onlineUnauthenticatedPlayers.size() > 0) {
+        if (playerRegister.getOnlineUnauthenticatedPlayers().size() > 0) {
             //Kick the default player who was first and allow the login
-            onlineUnauthenticatedPlayers.get(0).kickPlayer(ChatColor.RED + ConsoleMessages.get(KICKED_TO_MAKE_ROOM));
+            playerRegister.getOnlineUnauthenticatedPlayers().get(0).kickPlayer(ChatColor.RED + ConsoleMessages.get(KICKED_TO_MAKE_ROOM));
             playerLoginEvent.allow();
         } else if (playerLoginEvent.getPlayer().isOp()) {
             playerLoginEvent.allow();
@@ -195,10 +182,10 @@ public class PlayerLoginListener implements Listener {
     }
 
     public boolean isAlreadyRegistered(UUID playerUUID) {
-        return configManager.playersCfgContainsEntry(playerUUID.toString(), "password");
+        return playerRegister.playersCfgContainsEntry(playerUUID.toString(), "password");
     }
 
     public boolean alreadyEmailVerifiedButHasNoPasswordSet(UUID playerUUID) {
-        return configManager.playersCfgContainsEntry(playerUUID.toString()) && !isAlreadyRegistered(playerUUID);
+        return playerRegister.playersCfgContainsEntry(playerUUID.toString()) && !isAlreadyRegistered(playerUUID);
     }
 }

@@ -1,50 +1,70 @@
 package me.sarahlacerda.main;
 
-import me.sarahlacerda.main.config.ConfigManager;
+import me.sarahlacerda.main.config.EmailConfig;
+import me.sarahlacerda.main.io.YmlDriver;
+import me.sarahlacerda.main.executor.CommandOrchestrator;
+import me.sarahlacerda.main.message.ConsoleMessages;
+import me.sarahlacerda.main.message.MessageManager;
+import me.sarahlacerda.main.service.EmailService;
 import me.sarahlacerda.main.listener.PlayerLoginListener;
 import me.sarahlacerda.main.service.PasswordService;
+import me.sarahlacerda.main.service.PlayerLoginService;
+import me.sarahlacerda.main.service.PlayerPasswordService;
 import me.sarahlacerda.main.service.PlayerVerificationService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.security.NoSuchAlgorithmException;
-
 
 public class Main extends JavaPlugin {
-    private PlayerVerificationService playerVerificationService;
-    private PlayerLoginListener playerLoginListener;
-    private ConfigManager configManager;
+    public static Main plugin;
 
     public void onEnable() {
-        Plugin.plugin = this;
-        configManager = new ConfigManager(this, Bukkit.getConsoleSender());
-        playerLoginListener = new PlayerLoginListener(configManager);
+        plugin = this;
+
+        // Load all dependencies
+        PasswordService passwordService = new PasswordService("SHA3-256");
+        YmlDriver ymlDriver = new YmlDriver(this);
+        ConsoleMessages.initConsoleMessages(new MessageManager(ymlDriver));
+        PlayerRegister playerRegister = new PlayerRegister(ymlDriver);
+        PlayerLoginListener playerLoginListener = new PlayerLoginListener(playerRegister);
+        EmailConfig emailConfig = new EmailConfig(ymlDriver.getConfig());
+        PlayerVerificationService playerVerificationService = new PlayerVerificationService(
+                playerRegister,
+                new EmailService(
+                        emailConfig.getHost(),
+                        emailConfig.getPort(),
+                        emailConfig.getUsername(),
+                        emailConfig.getPassword(),
+                        emailConfig.getFromEmail()
+                ),
+                emailConfig
+        );
+
+        configureCommandsForPlugin(
+                new CommandOrchestrator(
+                        playerVerificationService,
+                        new PlayerLoginService(playerLoginListener, passwordService, playerRegister),
+                        new PlayerPasswordService(
+                                playerVerificationService,
+                                playerLoginListener,
+                                passwordService,
+                                playerRegister
+                        )
+                )
+        );
+
         getServer().getPluginManager().registerEvents(playerLoginListener, this);
-        playerVerificationService = new PlayerVerificationService(configManager.getEmailConfig(), playerLoginListener);
-        configureCommands();
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Enabling EmailVerifier");
     }
 
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Disabling EmailVerifier");
-        configManager.savePlayers();
         Bukkit.getServer().getScheduler().cancelTasks(this);
     }
 
-    private PasswordService initPasswordService() {
-        try {
-            return new PasswordService();
-        } catch (NoSuchAlgorithmException e) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Error enabling EmailVerifier");
-            e.printStackTrace();
-            throw new RuntimeException("Unable to start EmailVerifier, ", e);
-        }
-    }
-
-    private void configureCommands() {
-        CommandOrchestrator commandOrchestrator = new CommandOrchestrator(playerVerificationService, playerLoginListener, initPasswordService(), configManager);
+    private void configureCommandsForPlugin(CommandOrchestrator commandOrchestrator) {
         this.getCommand("register").setExecutor(commandOrchestrator);
         this.getCommand("code").setExecutor(commandOrchestrator);
         this.getCommand("password").setExecutor(commandOrchestrator);
