@@ -68,7 +68,16 @@ public class PlayerVerificationService {
     }
 
     private boolean codeIsValidForPlayer(Player player, int code) {
-        return verificationCodes.containsKey(code) && verificationCodes.get(code).player().getUniqueId().equals(player.getUniqueId());
+        if (verificationCodes.containsKey(code)) {
+            long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(verificationCodes.get(code).requestSentAt(), LocalDateTime.now());
+            if (elapsedTimeSinceEmailWasSent > emailConfig.getEmailSentCooldownInSeconds()) {
+                verificationCodes.remove(code);
+                return false;
+            }
+            return verificationCodes.get(code).player().getUniqueId().equals(player.getUniqueId());
+        }
+
+        return false;
     }
 
     private void confirmEmailVerification(Player player, int code) {
