@@ -1,12 +1,13 @@
 package me.sarahlacerda.main;
 
 import me.sarahlacerda.main.config.EmailConfig;
-import me.sarahlacerda.main.io.YmlDriver;
 import me.sarahlacerda.main.executor.CommandOrchestrator;
+import me.sarahlacerda.main.io.YmlDriver;
+import me.sarahlacerda.main.listener.PlayerEventListener;
+import me.sarahlacerda.main.manager.PlayerManager;
 import me.sarahlacerda.main.message.ConsoleMessages;
 import me.sarahlacerda.main.message.MessageManager;
 import me.sarahlacerda.main.service.EmailService;
-import me.sarahlacerda.main.listener.PlayerLoginListener;
 import me.sarahlacerda.main.service.PasswordService;
 import me.sarahlacerda.main.service.PlayerLoginService;
 import me.sarahlacerda.main.service.PlayerPasswordService;
@@ -26,11 +27,10 @@ public class Main extends JavaPlugin {
         PasswordService passwordService = new PasswordService("SHA3-256");
         YmlDriver ymlDriver = new YmlDriver(this);
         ConsoleMessages.initConsoleMessages(new MessageManager(ymlDriver));
-        PlayerRegister playerRegister = new PlayerRegister(ymlDriver);
-        PlayerLoginListener playerLoginListener = new PlayerLoginListener(playerRegister);
+        PlayerManager playerManager = new PlayerManager(ymlDriver);
         EmailConfig emailConfig = new EmailConfig(ymlDriver.getConfig());
         PlayerVerificationService playerVerificationService = new PlayerVerificationService(
-                playerRegister,
+                playerManager,
                 new EmailService(
                         emailConfig.getHost(),
                         emailConfig.getPort(),
@@ -44,17 +44,16 @@ public class Main extends JavaPlugin {
         configureCommandsForPlugin(
                 new CommandOrchestrator(
                         playerVerificationService,
-                        new PlayerLoginService(playerLoginListener, passwordService, playerRegister),
+                        new PlayerLoginService(passwordService, playerManager),
                         new PlayerPasswordService(
                                 playerVerificationService,
-                                playerLoginListener,
                                 passwordService,
-                                playerRegister
+                                playerManager
                         )
                 )
         );
 
-        getServer().getPluginManager().registerEvents(playerLoginListener, this);
+        getServer().getPluginManager().registerEvents(new PlayerEventListener(playerManager), this);
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Enabling EmailVerifier");
     }

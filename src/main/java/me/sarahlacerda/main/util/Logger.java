@@ -1,4 +1,4 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.util;
 
 import org.bukkit.Bukkit;
 

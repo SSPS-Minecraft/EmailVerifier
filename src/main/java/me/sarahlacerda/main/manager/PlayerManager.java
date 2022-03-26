@@ -1,4 +1,4 @@
-package me.sarahlacerda.main;
+package me.sarahlacerda.main.manager;
 
 import me.sarahlacerda.main.io.YmlDriver;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,21 +11,39 @@ import java.util.UUID;
 
 import static me.sarahlacerda.main.io.YmlDriver.ymlPath;
 
-public class PlayerRegister {
+public class PlayerManager {
     private final FileConfiguration players;
     private final YmlDriver ymlDriver;
 
     private final List<Player> onlineUnauthenticatedPlayers;
 
 
-    public PlayerRegister(YmlDriver ymlDriver) {
+    public PlayerManager(YmlDriver ymlDriver) {
         this.players = YamlConfiguration.loadConfiguration(ymlDriver.loadPlayersFile());
         this.ymlDriver = ymlDriver;
         this.onlineUnauthenticatedPlayers = new ArrayList<>();
     }
 
-    public List<Player> getOnlineUnauthenticatedPlayers() {
-        return onlineUnauthenticatedPlayers;
+    public boolean isUnauthenticated(Player player) {
+        return onlineUnauthenticatedPlayers.contains(player);
+    }
+
+    public void addUnauthenticated(Player player) {
+        onlineUnauthenticatedPlayers.add(player);
+        player.getInventory().clear();
+    }
+
+    public void authenticate(Player player) {
+        onlineUnauthenticatedPlayers.remove(player);
+    }
+
+    public int onlineUnauthenticatedPlayers() {
+        return onlineUnauthenticatedPlayers.size();
+    }
+
+    public Player getOldestOnlineUnauthenticatedPlayer() {
+        return onlineUnauthenticatedPlayers.get(0);
+
     }
 
     public String getPlayerEmail(UUID playerUUID) {
@@ -48,5 +66,13 @@ public class PlayerRegister {
 
     public boolean playersCfgContainsEntry(String... entries) {
         return players.contains(ymlPath("players", entries), false);
+    }
+
+    public boolean playerAlreadyRegistered(UUID playerUUID) {
+        return playersCfgContainsEntry(playerUUID.toString(), "password");
+    }
+
+    public boolean playerAlreadyEmailVerifiedButHasNoPasswordSet(UUID playerUUID) {
+        return playersCfgContainsEntry(playerUUID.toString()) && !playerAlreadyRegistered(playerUUID);
     }
 }

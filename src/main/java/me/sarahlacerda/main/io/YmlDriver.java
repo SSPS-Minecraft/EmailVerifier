@@ -10,7 +10,7 @@ import java.io.IOException;
 import static java.text.MessageFormat.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
-import static me.sarahlacerda.main.Logger.getLogger;
+import static me.sarahlacerda.main.util.Logger.getLogger;
 
 public class YmlDriver {
     private final Main plugin;

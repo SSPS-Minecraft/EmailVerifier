@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static java.text.MessageFormat.format;
-import static me.sarahlacerda.main.Logger.getLogger;
+import static me.sarahlacerda.main.util.Logger.getLogger;
 
 public class PasswordService {
 

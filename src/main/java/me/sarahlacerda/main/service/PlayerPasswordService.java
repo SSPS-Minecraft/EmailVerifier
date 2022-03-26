@@ -1,7 +1,6 @@
 package me.sarahlacerda.main.service;
 
-import me.sarahlacerda.main.PlayerRegister;
-import me.sarahlacerda.main.listener.PlayerLoginListener;
+import me.sarahlacerda.main.manager.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,15 +18,13 @@ import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerPasswordService {
     private final PlayerVerificationService playerVerificationService;
-    private final PlayerLoginListener playerLoginListener;
     private final PasswordService passwordService;
-    private final PlayerRegister playerRegister;
+    private final PlayerManager playerManager;
 
-    public PlayerPasswordService(PlayerVerificationService playerVerificationService, PlayerLoginListener playerLoginListener, PasswordService passwordService, PlayerRegister playerRegister) {
+    public PlayerPasswordService(PlayerVerificationService playerVerificationService, PasswordService passwordService, PlayerManager playerManager) {
         this.playerVerificationService = playerVerificationService;
-        this.playerLoginListener = playerLoginListener;
         this.passwordService = passwordService;
-        this.playerRegister = playerRegister;
+        this.playerManager = playerManager;
     }
 
     public boolean createPassword(Player player, String password, String passwordConfirmation) {
@@ -39,13 +36,13 @@ public class PlayerPasswordService {
     }
 
     private boolean createPasswordForPlayer(Player player, String password) {
-        if (playerLoginListener.isAlreadyRegistered(player.getUniqueId())) {
+        if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
             player.sendMessage(ChatColor.DARK_PURPLE + get(FORGOT_PASSWORD_HINT));
             return false;
         }
 
-        if (playerLoginListener.alreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
+        if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
             setPasswordForPlayerAndAuthenticateThem(player, password);
             return true;
         }
@@ -55,22 +52,24 @@ public class PlayerPasswordService {
     }
 
     public boolean resetPassword(Player player) {
-            if (playerLoginListener.isAlreadyRegistered(player.getUniqueId())) {
-                playerRegister.setPasswordForPlayer(player.getUniqueId(), null);
-                playerVerificationService.registerEmail(player, playerRegister.getPlayerEmail(player.getUniqueId()));
+        if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
+            playerManager.setPasswordForPlayer(player.getUniqueId(), null);
+            playerVerificationService.registerEmail(player, playerManager.getPlayerEmail(player.getUniqueId()));
 
-                player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
-            } else if (playerLoginListener.alreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
-                player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
-                return false;
-            }
-            player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_RESETTING_PASSWORD));
+            player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
+            return true;
+        } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
+            player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
+            return false;
+        }
+
+        player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_RESETTING_PASSWORD));
         return false;
     }
 
     private void setPasswordForPlayerAndAuthenticateThem(Player player, String password) {
-        playerRegister.getOnlineUnauthenticatedPlayers().remove(player);
-        playerRegister.setPasswordForPlayer(player.getUniqueId(), passwordService.generateHashFor(password));
+        playerManager.authenticate(player);
+        playerManager.setPasswordForPlayer(player.getUniqueId(), passwordService.generateHashFor(password));
         unHidePlayer(player);
         player.sendMessage(ChatColor.GREEN + get(PASSWORD_CREATED_WELCOME));
         player.sendMessage(ChatColor.GREEN + get(LOGIN_BACK_HINT));

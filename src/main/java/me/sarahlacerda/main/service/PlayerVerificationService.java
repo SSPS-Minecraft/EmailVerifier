@@ -1,8 +1,8 @@
 package me.sarahlacerda.main.service;
 
 import me.sarahlacerda.main.Main;
-import me.sarahlacerda.main.PlayerRegister;
 import me.sarahlacerda.main.config.EmailConfig;
+import me.sarahlacerda.main.manager.PlayerManager;
 import me.sarahlacerda.main.message.ConsoleMessages;
 import me.sarahlacerda.main.task.MailTask;
 import org.bukkit.ChatColor;
@@ -30,20 +30,20 @@ import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerVerificationService {
 
-    private final PlayerRegister playerRegister;
+    private final PlayerManager playerManager;
     private final EmailService emailService;
     private final EmailConfig emailConfig;
     private final Map<Integer, PlayerVerificationRecord> verificationCodes;
 
-    public PlayerVerificationService(PlayerRegister playerRegister, EmailService emailService, EmailConfig emailConfig) {
-        this.playerRegister = playerRegister;
+    public PlayerVerificationService(PlayerManager playerManager, EmailService emailService, EmailConfig emailConfig) {
+        this.playerManager = playerManager;
         this.emailConfig = emailConfig;
         this.emailService = emailService;
         this.verificationCodes = new HashMap<>();
     }
 
     public boolean registerEmail(Player player, String email) {
-        if (playerAlreadyRegisteredEmail(player)) {
+        if (playerAlreadyFullyRegistered(player)) {
             player.sendMessage(ALREADY_REGISTERED.getReference());
             return false;
         }
@@ -73,13 +73,13 @@ public class PlayerVerificationService {
     private void confirmEmailVerification(Player player, int code) {
         player.sendMessage(ChatColor.GREEN + get(EMAIL_VERIFIED));
 
-        playerRegister.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
+        playerManager.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
 
         verificationCodes.remove(code);
     }
 
-    private boolean playerAlreadyRegisteredEmail(Player player) {
-        return playerRegister.playersCfgContainsEntry(player.getUniqueId().toString());
+    private boolean playerAlreadyFullyRegistered(Player player) {
+        return playerManager.playersCfgContainsEntry(player.getUniqueId().toString(), "password");
     }
 
     private void generateCode(Player player, String email) {
