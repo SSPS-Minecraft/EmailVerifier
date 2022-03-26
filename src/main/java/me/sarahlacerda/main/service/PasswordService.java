@@ -4,21 +4,23 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static java.text.MessageFormat.format;
-import static me.sarahlacerda.main.util.Logger.getLogger;
-
 public class PasswordService {
 
     private final MessageDigest messageDigest;
 
-    public PasswordService(String algorithm) {
-        try {
-            messageDigest = MessageDigest.getInstance(algorithm);
-            getLogger().info(format("Using {0} encryption for player passwords", algorithm));
-        } catch (NoSuchAlgorithmException e) {
-            getLogger().warn(format("Chosen Password Algorithm \"{0}\" is not valid!", algorithm));
-            throw new RuntimeException(e);
-        }
+    /*
+     * Password requirements:
+     *
+     * At least 8 total characters and at most 20 total characters
+     * Must have at least 1 digit
+     * Must have at least 1 lowercase letter
+     * Must have at least 1 uppercase letter
+     *
+     * */
+    private final String PASSWORD_REQUIREMENTS_REGEX = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,20}$";
+
+    public PasswordService(String algorithm) throws NoSuchAlgorithmException {
+        messageDigest = MessageDigest.getInstance(algorithm);
     }
 
     public String generateHashFor(String plainTextPassword) {
@@ -29,6 +31,10 @@ public class PasswordService {
 
     public boolean validate(String password, String hexHash) {
         return generateHashFor(password).equals(hexHash);
+    }
+
+    public boolean validateRequirements(String password) {
+        return password.matches(PASSWORD_REQUIREMENTS_REGEX);
     }
 
     private static String bytesToHex(byte[] hash) {

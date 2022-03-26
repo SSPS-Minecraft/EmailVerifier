@@ -26,6 +26,7 @@ import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_ALLOWED;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_VALID;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_VERIFIED;
 import static me.sarahlacerda.main.message.ConsoleMessages.INVALID_CODE_ENTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_REQUIREMENTS;
 import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerVerificationService {
@@ -72,6 +73,7 @@ public class PlayerVerificationService {
 
     private void confirmEmailVerification(Player player, int code) {
         player.sendMessage(ChatColor.GREEN + get(EMAIL_VERIFIED));
+        player.sendMessage(ChatColor.LIGHT_PURPLE + get(PASSWORD_REQUIREMENTS));
 
         playerManager.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
 
@@ -85,7 +87,7 @@ public class PlayerVerificationService {
     private void generateCode(Player player, String email) {
         int code = generateCode();
         verificationCodes.put(code, new PlayerVerificationRecord(player, email, LocalDateTime.now()));
-        sendMail(player, email, code);
+        sendEmail(player, email, code);
     }
 
     private Optional<Integer> getCodeIfPlayerHasAlreadyRequestedEmailBefore(Player player) {
@@ -139,7 +141,6 @@ public class PlayerVerificationService {
         return emailConfig.getAllowedExtensions().size() > 0 && !emailConfig.getAllowedExtensions().contains(email.substring(email.indexOf("@") + 1).toLowerCase());
     }
 
-    //Generates a valid code for the system to use
     private int generateCode() {
         int code = ThreadLocalRandom.current().nextInt(1000, 9999 + 1);
 
@@ -151,7 +152,7 @@ public class PlayerVerificationService {
     }
 
     //Sends the e-mail to the player Asynchronously
-    private void sendMail(Player p, String userEmail, int code) {
+    private void sendEmail(Player p, String userEmail, int code) {
         new MailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Main.plugin);
     }
 

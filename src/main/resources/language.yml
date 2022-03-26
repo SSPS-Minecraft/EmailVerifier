@@ -24,13 +24,15 @@ messages:
     not_authenticated: "You are not authenticated. Type /login <your password> to login or use /register <email> if it's your first time here"
     server_is_full: "The server is currently full"
     welcome_back_already_registered: "Welcome back, {0}! Please use /login <your password> to start playing"
-    welcome_back_no_password_set: "Welcome back, {0}! Please use /password <your new password> <confirm your new password>> to register a login password before you start playing"
-    welcome_new_player: "Welcome, {0}! In order to play on this server, you must register an account! Please type /register <your email> to verify yourself"
+    welcome_back_no_password_set: "Welcome back, {0}!\nPlease use /password <your new password> <confirm your new password>> to register a login password before you start playing"
+    welcome_new_player: "Welcome, {0}!\nIn order to play on this server, you must register an account!\nPlease type /register <your email> to verify yourself"
     kicked_to_make_room: "You were kicked to make room for an authenticated user"
     you_are_in: "You're in!. Welcome back! :D"
     wrong_password: "Wrong password! Please try again. If you forgot your password, you can reset it by using /resetpassword"
     must_verify_email_before_login: "You must verify your email before you can login! Please use /register <your email address> to do so!"
     invalid_login_arguments: "Invalid Arguments. Please use /login <your password> to login"
+    password_does_not_meet_requirements: "This password does not meet the minimum password requirements!"
+    password_requirements: "PASSWORD REQUIREMENTS:\n\n * At least one lowercase letter\n * At least one uppercase letter\n * At least one digit\n * Minimum 8 total characters\n * Maximum 20 total characters"
 
 
   pt-br:

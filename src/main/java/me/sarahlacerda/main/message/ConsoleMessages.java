@@ -32,12 +32,14 @@ public enum ConsoleMessages {
     WRONG_PASSWORD("wrong_password"),
     MUST_VERIFY_EMAIL_BEFORE_LOGIN("must_verify_email_before_login"),
     INVALID_LOGIN_ARGUMENTS("invalid_login_arguments"),
-    INVALID_CODE_ENTERED("invalid_code_entered");
+    INVALID_CODE_ENTERED("invalid_code_entered"),
+    PASSWORD_DOES_NOT_MEET_REQUIREMENTS("password_does_not_meet_requirements"),
+    PASSWORD_REQUIREMENTS("password_requirements");
 
     private final String reference;
     private String message;
 
-    public static Map<String,ConsoleMessages> consoleMessages;
+    public static Map<String, ConsoleMessages> consoleMessages;
 
     ConsoleMessages(String reference) {
         this.reference = reference;

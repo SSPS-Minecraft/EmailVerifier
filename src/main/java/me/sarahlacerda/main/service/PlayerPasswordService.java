@@ -14,6 +14,8 @@ import static me.sarahlacerda.main.message.ConsoleMessages.NEW_OTP_GENERATED;
 import static me.sarahlacerda.main.message.ConsoleMessages.NO_PASSWORD_SET_YET;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORDS_DO_NOT_MATCH;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_CREATED_WELCOME;
+import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_DOES_NOT_MEET_REQUIREMENTS;
+import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_REQUIREMENTS;
 import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
 public class PlayerPasswordService {
@@ -32,23 +34,14 @@ public class PlayerPasswordService {
             player.sendMessage(ChatColor.RED + get(PASSWORDS_DO_NOT_MATCH));
             return false;
         }
-        return createPasswordForPlayer(player, password);
-    }
 
-    private boolean createPasswordForPlayer(Player player, String password) {
-        if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
-            player.sendMessage(ChatColor.DARK_PURPLE + get(FORGOT_PASSWORD_HINT));
+        if (!passwordService.validateRequirements(password)) {
+            player.sendMessage(ChatColor.RED + get(PASSWORD_DOES_NOT_MEET_REQUIREMENTS));
+            player.sendMessage(ChatColor.LIGHT_PURPLE + get(PASSWORD_REQUIREMENTS));
             return false;
         }
 
-        if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
-            setPasswordForPlayerAndAuthenticateThem(player, password);
-            return true;
-        }
-
-        player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_SETTING_PASSWORD));
-        return false;
+        return createPasswordForPlayer(player, password);
     }
 
     public boolean resetPassword(Player player) {
@@ -64,6 +57,22 @@ public class PlayerPasswordService {
         }
 
         player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_RESETTING_PASSWORD));
+        return false;
+    }
+
+    private boolean createPasswordForPlayer(Player player, String password) {
+        if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
+            player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
+            player.sendMessage(ChatColor.DARK_PURPLE + get(FORGOT_PASSWORD_HINT));
+            return false;
+        }
+
+        if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
+            setPasswordForPlayerAndAuthenticateThem(player, password);
+            return true;
+        }
+
+        player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_SETTING_PASSWORD));
         return false;
     }
 

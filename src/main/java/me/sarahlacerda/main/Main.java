@@ -12,9 +12,14 @@ import me.sarahlacerda.main.service.PasswordService;
 import me.sarahlacerda.main.service.PlayerLoginService;
 import me.sarahlacerda.main.service.PlayerPasswordService;
 import me.sarahlacerda.main.service.PlayerVerificationService;
+import me.sarahlacerda.main.util.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.security.NoSuchAlgorithmException;
+
+import static java.text.MessageFormat.format;
 
 
 public class Main extends JavaPlugin {
@@ -24,7 +29,14 @@ public class Main extends JavaPlugin {
         plugin = this;
 
         // Load all dependencies
-        PasswordService passwordService = new PasswordService("SHA3-256");
+        String hashingAlgorithm = "SHA3-256";
+        PasswordService passwordService = null;
+        try {
+            passwordService = new PasswordService(hashingAlgorithm);
+        } catch (NoSuchAlgorithmException e) {
+            Logger.getLogger().warn(format("Unable to load plugin, chosen password algorithm \"{0}\" is not valid!", hashingAlgorithm));
+            throw new RuntimeException(e);
+        }
         YmlDriver ymlDriver = new YmlDriver(this);
         ConsoleMessages.initConsoleMessages(new MessageManager(ymlDriver));
         PlayerManager playerManager = new PlayerManager(ymlDriver);
