@@ -34,7 +34,8 @@ public enum ConsoleMessages {
     INVALID_LOGIN_ARGUMENTS("invalid_login_arguments"),
     INVALID_CODE_ENTERED("invalid_code_entered"),
     PASSWORD_DOES_NOT_MEET_REQUIREMENTS("password_does_not_meet_requirements"),
-    PASSWORD_REQUIREMENTS("password_requirements");
+    PASSWORD_REQUIREMENTS("password_requirements"),
+    EMAIL_SENT("email_sent");
 
     private final String reference;
     private String message;

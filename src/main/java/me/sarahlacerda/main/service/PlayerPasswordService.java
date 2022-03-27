@@ -46,8 +46,7 @@ public class PlayerPasswordService {
 
     public boolean resetPassword(Player player) {
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
-            playerManager.setPasswordForPlayer(player.getUniqueId(), null);
-            playerVerificationService.registerEmail(player, playerManager.getPlayerEmail(player.getUniqueId()));
+            playerVerificationService.verifyExistingPlayer(player);
 
             player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
             return true;
@@ -77,7 +76,7 @@ public class PlayerPasswordService {
     }
 
     private void setPasswordForPlayerAndAuthenticateThem(Player player, String password) {
-        playerManager.authenticate(player);
+        playerManager.removeFromOnlineUnauthenticatedPlayers(player);
         playerManager.setPasswordForPlayer(player.getUniqueId(), passwordService.generateHashFor(password));
         unHidePlayer(player);
         player.sendMessage(ChatColor.GREEN + get(PASSWORD_CREATED_WELCOME));

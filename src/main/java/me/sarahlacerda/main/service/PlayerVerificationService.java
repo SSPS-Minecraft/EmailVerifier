@@ -3,8 +3,7 @@ package me.sarahlacerda.main.service;
 import me.sarahlacerda.main.Main;
 import me.sarahlacerda.main.config.EmailConfig;
 import me.sarahlacerda.main.manager.PlayerManager;
-import me.sarahlacerda.main.message.ConsoleMessages;
-import me.sarahlacerda.main.task.MailTask;
+import me.sarahlacerda.main.task.EmailTask;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -24,6 +23,7 @@ import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WA
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_SECONDS;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_ALLOWED;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_VALID;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_SENT;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_VERIFIED;
 import static me.sarahlacerda.main.message.ConsoleMessages.INVALID_CODE_ENTERED;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_REQUIREMENTS;
@@ -43,8 +43,8 @@ public class PlayerVerificationService {
         this.verificationCodes = new HashMap<>();
     }
 
-    public boolean registerEmail(Player player, String email) {
-        if (playerAlreadyFullyRegistered(player)) {
+    public boolean verifyPlayer(Player player, String email) {
+        if (playerAlreadyRegistered(player)) {
             player.sendMessage(ALREADY_REGISTERED.getReference());
             return false;
         }
@@ -55,6 +55,13 @@ public class PlayerVerificationService {
         }
 
         return true;
+    }
+
+    public void verifyExistingPlayer(Player player) {
+        String email = playerManager.getPlayerEmail(player.getUniqueId());
+
+        getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
+                .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
     }
 
     public boolean validateCodeForPlayer(Player player, int code) {
@@ -89,13 +96,14 @@ public class PlayerVerificationService {
         verificationCodes.remove(code);
     }
 
-    private boolean playerAlreadyFullyRegistered(Player player) {
+    private boolean playerAlreadyRegistered(Player player) {
         return playerManager.playersCfgContainsEntry(player.getUniqueId().toString(), "password");
     }
 
     private void generateCode(Player player, String email) {
         int code = generateCode();
         verificationCodes.put(code, new PlayerVerificationRecord(player, email, LocalDateTime.now()));
+        player.sendMessage(ChatColor.GREEN + get(EMAIL_SENT));
         sendEmail(player, email, code);
     }
 
@@ -140,7 +148,7 @@ public class PlayerVerificationService {
         }
 
         if (emailNotPartOfListOfAllowedExtensions(email)) {
-            player.sendMessage(ChatColor.RED + ConsoleMessages.get(EMAIL_NOT_ALLOWED));
+            player.sendMessage(ChatColor.RED + get(EMAIL_NOT_ALLOWED));
             return false;
         }
         return true;
@@ -162,7 +170,7 @@ public class PlayerVerificationService {
 
     //Sends the e-mail to the player Asynchronously
     private void sendEmail(Player p, String userEmail, int code) {
-        new MailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Main.plugin);
+        new EmailTask(emailService, emailConfig.getMessageTemplate(), p.getPlayer(), emailConfig.getSubject(), userEmail, code).runTaskAsynchronously(Main.plugin);
     }
 
 }

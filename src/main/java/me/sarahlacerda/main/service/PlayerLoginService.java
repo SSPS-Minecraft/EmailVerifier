@@ -23,7 +23,7 @@ public class PlayerLoginService {
     public boolean login(Player player, String password) {
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
             if (passwordsMatch(password, player)) {
-                playerManager.authenticate(player);
+                playerManager.removeFromOnlineUnauthenticatedPlayers(player);
                 unHidePlayer(player);
                 player.sendMessage(ChatColor.GREEN + get(YOU_ARE_IN));
                 return true;

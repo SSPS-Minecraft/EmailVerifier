@@ -33,7 +33,7 @@ public class PlayerManager {
         player.getInventory().clear();
     }
 
-    public void authenticate(Player player) {
+    public void removeFromOnlineUnauthenticatedPlayers(Player player) {
         onlineUnauthenticatedPlayers.remove(player);
     }
 
@@ -62,6 +62,10 @@ public class PlayerManager {
     public void setPasswordForPlayer(UUID playerUUID, String password) {
         players.set(ymlPath("players", playerUUID.toString(), "password"), password);
         ymlDriver.savePlayersFile(players);
+    }
+
+    public void removePlayer(UUID playerUUID) {
+        players.set(ymlPath("players", playerUUID.toString()), null);
     }
 
     public boolean playersCfgContainsEntry(String... entries) {

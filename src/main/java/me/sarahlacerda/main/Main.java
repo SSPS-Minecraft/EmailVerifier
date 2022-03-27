@@ -21,7 +21,6 @@ import java.security.NoSuchAlgorithmException;
 
 import static java.text.MessageFormat.format;
 
-
 public class Main extends JavaPlugin {
     public static Main plugin;
 
@@ -65,6 +64,8 @@ public class Main extends JavaPlugin {
                 )
         );
 
+        unauthorizeAllOnlinePlayers(playerManager);
+
         getServer().getPluginManager().registerEvents(new PlayerEventListener(playerManager), this);
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Enabling EmailVerifier");
@@ -73,6 +74,10 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Disabling EmailVerifier");
         Bukkit.getServer().getScheduler().cancelTasks(this);
+    }
+
+    private void unauthorizeAllOnlinePlayers(PlayerManager playerManager) {
+        Bukkit.getOnlinePlayers().forEach(playerManager::addUnauthenticated);
     }
 
     private void configureCommandsForPlugin(CommandOrchestrator commandOrchestrator) {

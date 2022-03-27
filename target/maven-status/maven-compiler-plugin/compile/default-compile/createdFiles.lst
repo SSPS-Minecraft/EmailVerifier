@@ -5,6 +5,7 @@ me\sarahlacerda\main\service\PlayerPasswordService.class
 me\sarahlacerda\main\util\Logger.class
 me\sarahlacerda\main\message\ConsoleMessages.class
 me\sarahlacerda\main\executor\CommandOrchestrator.class
+me\sarahlacerda\main\task\EmailTask.class
 me\sarahlacerda\main\Main.class
 me\sarahlacerda\main\io\YmlDriver.class
 me\sarahlacerda\main\service\PasswordService.class
@@ -13,4 +14,3 @@ me\sarahlacerda\main\manager\PlayerManager.class
 me\sarahlacerda\main\service\EmailService.class
 me\sarahlacerda\main\service\PlayerVerificationRecord.class
 me\sarahlacerda\main\service\PlayerVerificationService.class
-me\sarahlacerda\main\task\MailTask.class

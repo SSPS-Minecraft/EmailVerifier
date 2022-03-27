@@ -3,33 +3,23 @@ main: me.sarahlacerda.main.Main
 author: Sarah Lacerda
 version: 1.0
 api-version: 1.17
-description: An email verification plugin
+description: A login plugin with player email verification
 commands:
   register:
-    description: Command to request an authentication code for your MC account via an e-mail
+    description: Command to request a one time authentication code for your MC account via an e-mail
     usage: /<command>
-    aliases: [ auth ]
+    aliases: [ registrar, reg ]
   code:
-    description: Command to verify your MC account with the code received via your e-mail
+    description: Command to verify your MC account with the one time code received via your e-mail
     usage: /<command>
   password:
-    description: Command to request an authentication code for your MC account via an e-mail
+    description: Command to request define a password for your MC account after verifying yourself via e-mail
     usage: /<command>
-    aliases: [ auth ]
-    code:
-      description: Command to verify your MC account with the code received via your e-mail
-      usage: /<command>
+    aliases: [ senha, pass ]
   resetpassword:
-    description: Command to request an authentication code for your MC account via an e-mail
+    description: Command to request a reset of your password (if you forgot it). You will need to verify yourself via the same e-mail you initially used
     usage: /<command>
-    aliases: [ auth ]
-    code:
-      description: Command to verify your MC account with the code received via your e-mail
-      usage: /<command>
+    aliases: [ resetsenha ]
   login:
-    description: Command to request an authentication code for your MC account via an e-mail
+    description: Command to login in the server with your login password
     usage: /<command>
-    aliases: [ auth ]
-    code:
-      description: Command to verify your MC account with the code received via your e-mail
-      usage: /<command>

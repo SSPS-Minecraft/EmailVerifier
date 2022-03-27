@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class MailTask extends BukkitRunnable {
+public class EmailTask extends BukkitRunnable {
     private final EmailService emailService;
     private final String messageTemplate;
     private final String subject;
@@ -16,7 +16,7 @@ public class MailTask extends BukkitRunnable {
     private final int code;
     private final Player player;
 
-    public MailTask(EmailService emailService, String messageTemplate, Player player, String subject, String recipientEmail, int code) {
+    public EmailTask(EmailService emailService, String messageTemplate, Player player, String subject, String recipientEmail, int code) {
         this.emailService = emailService;
         this.messageTemplate = messageTemplate;
         this.player = player;
@@ -29,10 +29,6 @@ public class MailTask extends BukkitRunnable {
 
         try {
             emailService.sendEmail(recipientEmail, subject, prepareMessage(messageTemplate, code));
-
-            player.sendMessage(ChatColor.GREEN + "A message with your code has been e-mailed to: " + recipientEmail);
-            player.sendMessage(ChatColor.GREEN + "Once you receive your code type /code [code] to authenticate");
-
             Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + player.getDisplayName() + "Requested code:" + code + " be sent to " + recipientEmail);
             this.cancel();
         } catch (MessagingException e) {

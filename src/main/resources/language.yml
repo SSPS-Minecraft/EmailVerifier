@@ -1,7 +1,6 @@
 language: en-us
 
 messages:
-
   en-us:
     already_registered: "You are already registered! Use /login <your password>"
     email_already_sent_wait_seconds: "An e-mail has already been sent. Please wait {0} seconds before sending another one"
@@ -33,7 +32,7 @@ messages:
     invalid_login_arguments: "Invalid Arguments. Please use /login <your password> to login"
     password_does_not_meet_requirements: "This password does not meet the minimum password requirements!"
     password_requirements: "PASSWORD REQUIREMENTS:\n\n * At least one lowercase letter\n * At least one uppercase letter\n * At least one digit\n * Minimum 8 total characters\n * Maximum 20 total characters"
-
+    email_sent: "Your code has been e-mailed to the e-mail address you just provided\nOnce you receive your code type /code <code> to verify your e-mail"
 
   pt-br:
     already_registered: "Voce ja esta registrad@! Digite /login <sua senha> para comecar a jogar!"
@@ -53,12 +52,12 @@ messages:
     invalid_register_arguments: "Argumentos invalidos. Uso: /registrar <endereco de email>"
     invalid_code_arguments: "Argumentos invalidos. Uso: /code <codigo recebido por email>"
     invalid_code_entered: "Voce digitou um codigo invalido. Tente novamente"
-    email_verified: "Voce verificou seu email!\nAgora digite /senha <sua nova senha> <confirme sua senha> para registrar uma senha de login para voce!"
+    email_verified: "Voce verificou seu email!\nAgora digite /senha <sua nova senha> <confirme sua senha> para registrar uma senha de login!"
     not_authenticated: "Voce nao esta autenticad@. Para poder jogar, digite /login <sua senha> ou /registrar <seu endereco de email> caso for sua primeira vez aqui"
     server_is_full: "O servidor esta cheio"
     welcome_back_already_registered: "Seja bem-vind@ de volta, {0}! Por favor digite /login <sua senha> para comecar a jogar"
     welcome_back_no_password_set: "Seja bem-vind@ de volta, {0}!\nPor favor digite /senha <sua nova senha> <confirme sua nova senha> para registrar uma senha antes de comecar a jogar"
-    welcome_new_player: "Seja bem-vind@ de volta, {0}!\nPara poder jogar neste servidor voce precisa registrar uma conta!\nAntes, por favor digite /registrar <seu endereco de email> para verificar seu email"
+    welcome_new_player: "Seja bem-vind@, {0}!\nPara poder jogar neste servidor voce precisa registrar um login!\nAntes, por favor digite /registrar <seu endereco de email> para verificar seu email"
     kicked_to_make_room: "Voce foi kickad@ para dar espaco para alguem ja autenticad@"
     you_are_in: "Seja bem-vind@ de volta! :D"
     wrong_password: "Senha incorreta! Por favor tente novamente.\nCaso tenha esquecido sua senha, digite /resetsenha para criar uma nova"
@@ -66,3 +65,4 @@ messages:
     invalid_login_arguments: "Argumentos invalidos. Uso: /login <sua senha>"
     password_does_not_meet_requirements: "Essa senha nao atende os requisitos minimos!"
     password_requirements: "REQUISITOS DA SENHA:\n\n * Pelo menos uma letra minuscula\n * Pelo menos uma letra maiuscula\n * Pelo menos um digito\n * Minimo 8 caracteres\n * Maximo 20 caracteres ao todo"
+    email_sent: "Seu codigo foi enviado para o seu email. Por favor verifique sua caixa de entrada e spam\n Assim que recebe-lo digite /code <codigo recebido por email> para verificar seu email"

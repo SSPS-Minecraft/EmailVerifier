@@ -46,7 +46,7 @@ public class CommandOrchestrator implements CommandExecutor {
                 return false;
             }
 
-            return playerVerificationService.registerEmail(player, args[0]);
+            return playerVerificationService.verifyPlayer(player, args[0]);
         }
 
         return true;
@@ -82,7 +82,7 @@ public class CommandOrchestrator implements CommandExecutor {
 
     private boolean resetPassword(CommandSender commandSender, String[] args) {
         if (commandSender instanceof Player player) {
-                return playerPasswordService.resetPassword(player);
+            return playerPasswordService.resetPassword(player);
         }
 
         return true;

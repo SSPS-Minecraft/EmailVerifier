@@ -39,22 +39,18 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler
     public void onLogin(PlayerLoginEvent playerLoginEvent) {
-        if (isPriorityPlayer(playerLoginEvent.getPlayer())) {
-            if (isServerFull()) {
-                handleLoginWhenServerIsFull(playerLoginEvent);
-            } else {
-                playerLoginEvent.allow();
-            }
-        } else if (isServerFull()) {
-            playerLoginEvent.disallow(PlayerLoginEvent.Result.KICK_FULL, ChatColor.RED + get(SERVER_IS_FULL));
-        } else {
+        if (isServerFull()) {
+            handleLoginWhenServerIsFull(playerLoginEvent);
+        }
+
+        if (isNotPriorityPlayer(playerLoginEvent.getPlayer())) {
             playerManager.addUnauthenticated(playerLoginEvent.getPlayer());
         }
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent playerJoinEvent) {
-        if (!isPriorityPlayer(playerJoinEvent.getPlayer())) {
+        if (isNotPriorityPlayer(playerJoinEvent.getPlayer())) {
             handlePlayerMessagesBasedOnContext(playerJoinEvent);
             hidePlayer(playerJoinEvent);
         }
@@ -76,14 +72,16 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    //Remove the default players from the list of online default players on leave
     @EventHandler
     public void onLeave(PlayerQuitEvent playerQuitEvent) {
-        //If the player was an online default player, remove them
-        playerManager.authenticate(playerQuitEvent.getPlayer());
+        if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(playerQuitEvent.getPlayer().getUniqueId())) {
+            playerManager.removePlayer(playerQuitEvent.getPlayer().getUniqueId());
+        }
+
+        playerManager.removeFromOnlineUnauthenticatedPlayers(playerQuitEvent.getPlayer());
     }
 
-    //Block all interaction from default players
+    //Block all interaction from unauthenticated players
     @EventHandler
     public void onPlayerDropItem(PlayerInteractEvent playerInteractEvent) {
         if (playerManager.isUnauthenticated(playerInteractEvent.getPlayer())) {
@@ -157,8 +155,6 @@ public class PlayerEventListener implements Listener {
     private void handlePlayerMessagesBasedOnContext(PlayerJoinEvent playerJoinEvent) {
         if (playerManager.playerAlreadyRegistered(playerJoinEvent.getPlayer().getUniqueId())) {
             playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + format(get(WELCOME_BACK_ALREADY_REGISTERED), playerJoinEvent.getPlayer().getName()));
-        } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(playerJoinEvent.getPlayer().getUniqueId())) {
-            playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + format(get(WELCOME_BACK_NO_PASSWORD_SET), playerJoinEvent.getPlayer().getName()));
         } else {
             playerJoinEvent.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + format(get(WELCOME_NEW_PLAYER), playerJoinEvent.getPlayer().getName()));
         }
@@ -178,8 +174,8 @@ public class PlayerEventListener implements Listener {
     }
 
     //If the player has bypass permission, or is an OP
-    private boolean isPriorityPlayer(Player player) {
-        return player.getPlayer().isOp() || player.getPlayer().hasPermission("emailauth.bypass");
+    private boolean isNotPriorityPlayer(Player player) {
+        return !player.getPlayer().isOp() && !player.getPlayer().hasPermission("auth.bypass");
     }
 
     private boolean isServerFull() {
