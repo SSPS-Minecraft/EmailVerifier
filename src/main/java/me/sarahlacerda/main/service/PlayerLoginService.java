@@ -26,10 +26,10 @@ public class PlayerLoginService {
                 playerManager.authenticate(player);
                 unHidePlayer(player);
                 player.sendMessage(ChatColor.GREEN + get(YOU_ARE_IN));
-
                 return true;
             } else {
                 player.sendMessage(ChatColor.RED + get(WRONG_PASSWORD));
+                return false;
             }
         } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
