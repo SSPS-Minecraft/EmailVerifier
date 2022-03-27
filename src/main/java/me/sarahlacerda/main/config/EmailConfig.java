@@ -64,42 +64,6 @@ public final class EmailConfig {
         return emailSentCooldownInSeconds;
     }
 
-    public String host() {
-        return host;
-    }
-
-    public int port() {
-        return port;
-    }
-
-    public String username() {
-        return username;
-    }
-
-    public String password() {
-        return password;
-    }
-
-    public String fromEmail() {
-        return fromEmail;
-    }
-
-    public String subject() {
-        return subject;
-    }
-
-    public String messageTemplate() {
-        return messageTemplate;
-    }
-
-    public List<String> allowedExtensions() {
-        return allowedExtensions;
-    }
-
-    public int emailSentCooldownInSeconds() {
-        return emailSentCooldownInSeconds;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;

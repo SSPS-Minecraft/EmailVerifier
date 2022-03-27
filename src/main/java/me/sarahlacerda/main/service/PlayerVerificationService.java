@@ -51,6 +51,10 @@ public class PlayerVerificationService {
             return false;
         }
 
+        if (!emailValid(email, player)) {
+            return false;
+        }
+
         requestOtpCode(player, email, EMAIL_SENT);
         return true;
     }
