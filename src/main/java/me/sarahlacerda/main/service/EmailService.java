@@ -2,10 +2,13 @@ package me.sarahlacerda.main.service;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.util.Properties;
 
 public class EmailService {
@@ -48,7 +51,14 @@ public class EmailService {
         mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
 
         mimeMessage.setSubject(subject);
-        mimeMessage.setText(message);
+
+        MimeBodyPart mimeBodyPart = new MimeBodyPart();
+        mimeBodyPart.setContent(message, "text/html; charset=utf-8");
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(mimeBodyPart);
+
+        mimeMessage.setContent(multipart);
 
         return mimeMessage;
     }
