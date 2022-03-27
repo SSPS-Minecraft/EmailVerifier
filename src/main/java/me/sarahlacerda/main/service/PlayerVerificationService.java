@@ -3,6 +3,7 @@ package me.sarahlacerda.main.service;
 import me.sarahlacerda.main.Main;
 import me.sarahlacerda.main.config.EmailConfig;
 import me.sarahlacerda.main.manager.PlayerManager;
+import me.sarahlacerda.main.message.ConsoleMessages;
 import me.sarahlacerda.main.task.EmailTask;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -50,27 +51,14 @@ public class PlayerVerificationService {
             return false;
         }
 
-        if (emailValid(email, player)) {
-            getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
-                    .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
-        }
-
+        requestOtpCode(player, email, EMAIL_SENT);
         return true;
     }
 
     public void verifyExistingPlayer(Player player) {
         String email = playerManager.getPlayerEmail(player.getUniqueId());
 
-        Optional<Integer> codeAlreadyRequestedBefore = getCodeIfPlayerHasAlreadyRequestedEmailBefore(player);
-
-        if (codeAlreadyRequestedBefore.isPresent()) {
-            if (!handleEmailAlreadySent(player, email, codeAlreadyRequestedBefore.get())) {
-                player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
-            }
-        } else {
-            player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
-        }
-
+        requestOtpCode(player, email, NEW_OTP_GENERATED);
     }
 
     public boolean validateCodeForPlayer(Player player, int code) {
@@ -81,6 +69,19 @@ public class PlayerVerificationService {
 
         player.sendMessage(ChatColor.RED + get(INVALID_CODE_ENTERED));
         return false;
+    }
+
+    private void requestOtpCode(Player player, String email, ConsoleMessages emailSentMessage) {
+        Optional<Integer> codeAlreadyRequestedBefore = getCodeIfPlayerHasAlreadyRequestedEmailBefore(player);
+
+        if (codeAlreadyRequestedBefore.isPresent()) {
+            if (handleEmailAlreadySent(player, email, codeAlreadyRequestedBefore.get())) {
+                player.sendMessage(ChatColor.GREEN + get(emailSentMessage));
+            }
+        } else {
+            generateCode(player, email);
+            player.sendMessage(ChatColor.GREEN + get(emailSentMessage));
+        }
     }
 
     private boolean codeIsValidForPlayer(Player player, int code) {
@@ -109,14 +110,9 @@ public class PlayerVerificationService {
         return playerManager.playersCfgContainsEntry(player.getUniqueId().toString(), "password");
     }
 
-    private void generateCode2(Player player, String email) {
-
-    }
-
     private void generateCode(Player player, String email) {
         int code = generateCode();
         verificationCodes.put(code, new PlayerVerificationRecord(player, email, LocalDateTime.now()));
-        player.sendMessage(ChatColor.GREEN + get(EMAIL_SENT));
         sendEmail(player, email, code);
     }
 
