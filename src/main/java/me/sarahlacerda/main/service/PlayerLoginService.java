@@ -26,6 +26,8 @@ public class PlayerLoginService {
                 playerManager.authenticate(player);
                 unHidePlayer(player);
                 player.sendMessage(ChatColor.GREEN + get(YOU_ARE_IN));
+
+                return true;
             } else {
                 player.sendMessage(ChatColor.RED + get(WRONG_PASSWORD));
             }
@@ -33,15 +35,14 @@ public class PlayerLoginService {
             player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
             return false;
         }
-        player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_LOGIN));
 
+        player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_LOGIN));
         return false;
     }
 
     private boolean passwordsMatch(String passwordProvided, Player player) {
         return passwordService.validate(passwordProvided, playerManager.getPlayerPassword(player.getUniqueId()));
     }
-
 
     private void unHidePlayer(Player player) {
         for (Player p : Bukkit.getOnlinePlayers()) {
