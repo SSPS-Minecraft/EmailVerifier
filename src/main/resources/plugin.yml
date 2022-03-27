@@ -7,14 +7,14 @@ description: A login plugin with player email verification
 commands:
   register:
     description: Command to request a one time authentication code for your MC account via an e-mail
-    usage: /<command>
+    usage: /<command> <email>
     aliases: [ registrar, reg ]
   code:
     description: Command to verify your MC account with the one time code received via your e-mail
-    usage: /<command>
+    usage: /<command> <code>
   password:
     description: Command to request define a password for your MC account after verifying yourself via e-mail
-    usage: /<command>
+    usage: /<command> <password> <password>
     aliases: [ senha, pass ]
   resetpassword:
     description: Command to request a reset of your password (if you forgot it). You will need to verify yourself via the same e-mail you initially used
@@ -22,4 +22,4 @@ commands:
     aliases: [ resetsenha ]
   login:
     description: Command to login in the server with your login password
-    usage: /<command>
+    usage: /<command> <password>
