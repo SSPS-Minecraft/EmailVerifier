@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -20,12 +21,13 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.List;
+
 import static java.text.MessageFormat.format;
 import static me.sarahlacerda.main.message.ConsoleMessages.KICKED_TO_MAKE_ROOM;
 import static me.sarahlacerda.main.message.ConsoleMessages.NOT_AUTHENTICATED;
 import static me.sarahlacerda.main.message.ConsoleMessages.SERVER_IS_FULL;
 import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_BACK_ALREADY_REGISTERED;
-import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_BACK_NO_PASSWORD_SET;
 import static me.sarahlacerda.main.message.ConsoleMessages.WELCOME_NEW_PLAYER;
 import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
@@ -141,6 +143,35 @@ public class PlayerEventListener implements Listener {
                 entityTargetLivingEntityEvent.setTarget(null);
             }
         }
+    }
+
+    //Disallow all commands (except ones related to login/register) if player is not authenticated
+    @EventHandler
+    public void onPlayerCommand(PlayerCommandPreprocessEvent playerCommandPreprocessEvent) {
+        if (playerManager.isUnauthenticated(playerCommandPreprocessEvent.getPlayer())) {
+            List<String> allowedCommands = List.of(
+                    "/registrar",
+                    "/reg ",
+                    "/register ",
+                    "/code ",
+                    "/password ",
+                    "/senha ",
+                    "/pass ",
+                    "/resetsenha ",
+                    "/resetpassword ",
+                    "/login ");
+
+            for (String allowedCommand : allowedCommands) {
+                if (playerCommandPreprocessEvent.getMessage().contains(allowedCommand)) {
+                    return;
+                }
+            }
+
+            playerCommandPreprocessEvent.getPlayer().sendMessage(ChatColor.RED + get(NOT_AUTHENTICATED));
+            playerCommandPreprocessEvent.setCancelled(true);
+        }
+
+
     }
 
     private void hidePlayer(PlayerJoinEvent playerJoinEvent) {
