@@ -26,6 +26,7 @@ import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_VALID;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_SENT;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_VERIFIED;
 import static me.sarahlacerda.main.message.ConsoleMessages.INVALID_CODE_ENTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.NEW_OTP_GENERATED;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_REQUIREMENTS;
 import static me.sarahlacerda.main.message.ConsoleMessages.get;
 
@@ -60,8 +61,16 @@ public class PlayerVerificationService {
     public void verifyExistingPlayer(Player player) {
         String email = playerManager.getPlayerEmail(player.getUniqueId());
 
-        getCodeIfPlayerHasAlreadyRequestedEmailBefore(player)
-                .ifPresentOrElse(code -> handleEmailAlreadySent(player, email, code), () -> generateCode(player, email));
+        Optional<Integer> codeAlreadyRequestedBefore = getCodeIfPlayerHasAlreadyRequestedEmailBefore(player);
+
+        if (codeAlreadyRequestedBefore.isPresent()) {
+            if (!handleEmailAlreadySent(player, email, codeAlreadyRequestedBefore.get())) {
+                player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
+            }
+        } else {
+            player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
+        }
+
     }
 
     public boolean validateCodeForPlayer(Player player, int code) {
@@ -100,6 +109,10 @@ public class PlayerVerificationService {
         return playerManager.playersCfgContainsEntry(player.getUniqueId().toString(), "password");
     }
 
+    private void generateCode2(Player player, String email) {
+
+    }
+
     private void generateCode(Player player, String email) {
         int code = generateCode();
         verificationCodes.put(code, new PlayerVerificationRecord(player, email, LocalDateTime.now()));
@@ -116,15 +129,17 @@ public class PlayerVerificationService {
         return Optional.empty();
     }
 
-    private void handleEmailAlreadySent(Player player, String email, Integer code) {
+    private boolean handleEmailAlreadySent(Player player, String email, Integer code) {
         long elapsedTimeSinceEmailWasSent = ChronoUnit.SECONDS.between(verificationCodes.get(code).requestSentAt(), LocalDateTime.now());
 
         if (elapsedTimeSinceEmailWasSent > emailConfig.getEmailSentCooldownInSeconds()) {
             verificationCodes.remove(code);
             generateCode(player, email);
-        } else {
-            askPlayerToWaitMore(player, emailConfig.getEmailSentCooldownInSeconds() - elapsedTimeSinceEmailWasSent);
+            return true;
         }
+
+        askPlayerToWaitMore(player, emailConfig.getEmailSentCooldownInSeconds() - elapsedTimeSinceEmailWasSent);
+        return false;
     }
 
     private void askPlayerToWaitMore(Player player, long waitHowLongInSeconds) {

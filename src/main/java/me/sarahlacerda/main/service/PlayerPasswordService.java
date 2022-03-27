@@ -10,7 +10,6 @@ import static me.sarahlacerda.main.message.ConsoleMessages.FORGOT_PASSWORD_HINT;
 import static me.sarahlacerda.main.message.ConsoleMessages.LOGIN_BACK_HINT;
 import static me.sarahlacerda.main.message.ConsoleMessages.MUST_VERIFY_EMAIL_BEFORE_RESETTING_PASSWORD;
 import static me.sarahlacerda.main.message.ConsoleMessages.MUST_VERIFY_EMAIL_BEFORE_SETTING_PASSWORD;
-import static me.sarahlacerda.main.message.ConsoleMessages.NEW_OTP_GENERATED;
 import static me.sarahlacerda.main.message.ConsoleMessages.NO_PASSWORD_SET_YET;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORDS_DO_NOT_MATCH;
 import static me.sarahlacerda.main.message.ConsoleMessages.PASSWORD_CREATED_WELCOME;
@@ -48,7 +47,6 @@ public class PlayerPasswordService {
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
             playerVerificationService.verifyExistingPlayer(player);
 
-            player.sendMessage(ChatColor.GREEN + get(NEW_OTP_GENERATED));
             return true;
         } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
