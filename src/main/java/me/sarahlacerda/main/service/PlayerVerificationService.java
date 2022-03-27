@@ -101,9 +101,14 @@ public class PlayerVerificationService {
         player.sendMessage(ChatColor.GREEN + get(EMAIL_VERIFIED));
         player.sendMessage(ChatColor.LIGHT_PURPLE + get(PASSWORD_REQUIREMENTS));
 
-        playerManager.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
+        if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
+            playerManager.setPasswordForPlayer(player.getUniqueId(), null);
+        } else {
+            playerManager.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
+        }
 
         verificationCodes.remove(code);
+
     }
 
     private boolean playerAlreadyRegistered(Player player) {
