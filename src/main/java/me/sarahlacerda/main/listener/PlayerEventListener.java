@@ -54,7 +54,6 @@ public class PlayerEventListener implements Listener {
     public void onJoin(PlayerJoinEvent playerJoinEvent) {
         if (isNotPriorityPlayer(playerJoinEvent.getPlayer())) {
             handlePlayerMessagesBasedOnContext(playerJoinEvent);
-            hidePlayer(playerJoinEvent);
         }
     }
 
@@ -172,15 +171,6 @@ public class PlayerEventListener implements Listener {
         }
 
 
-    }
-
-    private void hidePlayer(PlayerJoinEvent playerJoinEvent) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.isOp()) {
-                player.hidePlayer(Main.plugin, playerJoinEvent.getPlayer());
-                playerJoinEvent.getPlayer().setPlayerListName(null);
-            }
-        }
     }
 
     private void handlePlayerMessagesBasedOnContext(PlayerJoinEvent playerJoinEvent) {

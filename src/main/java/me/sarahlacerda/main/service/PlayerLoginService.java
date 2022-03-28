@@ -1,7 +1,6 @@
 package me.sarahlacerda.main.service;
 
 import me.sarahlacerda.main.manager.PlayerManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -24,7 +23,6 @@ public class PlayerLoginService {
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
             if (passwordsMatch(password, player)) {
                 playerManager.removeFromOnlineUnauthenticatedPlayers(player);
-                unHidePlayer(player);
                 player.sendMessage(ChatColor.GREEN + get(YOU_ARE_IN));
                 return true;
             } else {
@@ -42,12 +40,5 @@ public class PlayerLoginService {
 
     private boolean passwordsMatch(String passwordProvided, Player player) {
         return passwordService.validate(passwordProvided, playerManager.getPlayerPassword(player.getUniqueId()));
-    }
-
-    private void unHidePlayer(Player player) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.showPlayer(p);
-        }
-        player.setPlayerListName(player.getDisplayName());
     }
 }
