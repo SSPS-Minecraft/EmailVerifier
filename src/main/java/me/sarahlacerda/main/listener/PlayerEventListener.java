@@ -1,6 +1,5 @@
 package me.sarahlacerda.main.listener;
 
-import me.sarahlacerda.main.Main;
 import me.sarahlacerda.main.manager.PlayerManager;
 import me.sarahlacerda.main.message.ConsoleMessages;
 import net.md_5.bungee.api.ChatColor;
@@ -76,7 +75,7 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent playerQuitEvent) {
         if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(playerQuitEvent.getPlayer().getUniqueId())) {
-            playerManager.removePlayer(playerQuitEvent.getPlayer().getUniqueId());
+            playerManager.removePlayer(playerQuitEvent.getPlayer().getUniqueId().toString());
         }
 
         playerManager.removeFromOnlineUnauthenticatedPlayers(playerQuitEvent.getPlayer());

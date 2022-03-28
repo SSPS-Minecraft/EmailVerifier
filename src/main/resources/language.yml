@@ -33,6 +33,7 @@ messages:
     password_does_not_meet_requirements: "This password does not meet the minimum password requirements!"
     password_requirements: "PASSWORD REQUIREMENTS:\n\n * At least one lowercase letter\n * At least one uppercase letter\n * At least one digit\n * Minimum 8 total characters\n * Maximum 20 total characters"
     email_sent: "Your code has been e-mailed to the e-mail address you just provided\nOnce you receive your code type /code <code> to verify your e-mail"
+    email_already_registered: "Ops, this email has already been used by another player. You should always use your own email :/\nIf you believe this is an error, please contact the Administrators"
 
   pt-br:
     already_registered: "Voce ja esta registrad@! Digite /login <sua senha> para comecar a jogar!"
@@ -66,3 +67,4 @@ messages:
     password_does_not_meet_requirements: "Essa senha nao atende os requisitos minimos!"
     password_requirements: "REQUISITOS DA SENHA:\n\n * Pelo menos uma letra minuscula\n * Pelo menos uma letra maiuscula\n * Pelo menos um digito\n * Minimo 8 caracteres\n * Maximo 20 caracteres ao todo"
     email_sent: "Seu codigo foi enviado para o seu email. Por favor verifique sua caixa de entrada e spam\n Assim que recebe-lo digite /code <codigo recebido por email> para verificar seu email"
+    email_already_registered: "Ops, este e-mail ja foi utilizado por outra pessoa. Voce deve usar sempre o seu proprio e-mail para registrar :/\nSe voce acredita que isso seja um erro, reporte para uma pessoa Admin"

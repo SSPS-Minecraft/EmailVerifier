@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static me.sarahlacerda.main.io.YmlDriver.ymlPath;
@@ -43,29 +44,41 @@ public class PlayerManager {
 
     public Player getOldestOnlineUnauthenticatedPlayer() {
         return onlineUnauthenticatedPlayers.get(0);
-
     }
 
-    public String getPlayerEmail(UUID playerUUID) {
-        return players.get(ymlPath("players", playerUUID.toString(), "email")).toString();
+    public String getPlayerEmail(String playerUUID) {
+        return players.get(ymlPath("players", playerUUID, "email")).toString();
     }
 
-    public String getPlayerPassword(UUID playerUUID) {
-        return players.get(ymlPath("players", playerUUID.toString(), "password")).toString();
+    public String getPlayerPassword(String playerUUID) {
+        return players.get(ymlPath("players", playerUUID, "password")).toString();
     }
 
-    public void setEmailForPlayer(UUID playerUUID, String email) {
-        players.set(ymlPath("players", playerUUID.toString(), "email"), email);
+    public void setEmailForPlayer(String playerUUID, String email) {
+        players.set(ymlPath("players", playerUUID, "email"), email);
         ymlDriver.savePlayersFile(players);
     }
 
-    public void setPasswordForPlayer(UUID playerUUID, String password) {
-        players.set(ymlPath("players", playerUUID.toString(), "password"), password);
+    public void setPasswordForPlayer(String playerUUID, String password) {
+        players.set(ymlPath("players", playerUUID, "password"), password);
         ymlDriver.savePlayersFile(players);
     }
 
-    public void removePlayer(UUID playerUUID) {
-        players.set(ymlPath("players", playerUUID.toString()), null);
+    public void removePlayer(String playerUUID) {
+        players.set(ymlPath("players", playerUUID), null);
+    }
+
+    public Optional<UUID> getPlayerUUIDAssociatedToEmail(String email) {
+        try {
+            for (String playerId : players.getConfigurationSection("players").getKeys(false)) {
+                if (getPlayerEmail(playerId).equals(email)) {
+                    return Optional.of(UUID.fromString(playerId));
+                }
+            }
+        } catch (NullPointerException ignored) {
+        }
+
+        return Optional.empty();
     }
 
     public boolean playersCfgContainsEntry(String... entries) {

@@ -39,6 +39,6 @@ public class PlayerLoginService {
     }
 
     private boolean passwordsMatch(String passwordProvided, Player player) {
-        return passwordService.validate(passwordProvided, playerManager.getPlayerPassword(player.getUniqueId()));
+        return passwordService.validate(passwordProvided, playerManager.getPlayerPassword(player.getUniqueId().toString()));
     }
 }

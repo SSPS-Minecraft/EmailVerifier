@@ -15,11 +15,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.text.MessageFormat.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static me.sarahlacerda.main.message.ConsoleMessages.ALREADY_REGISTERED;
+import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_REGISTERED;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_MINUTES;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_ALREADY_SENT_WAIT_SECONDS;
 import static me.sarahlacerda.main.message.ConsoleMessages.EMAIL_NOT_ALLOWED;
@@ -47,7 +49,12 @@ public class PlayerVerificationService {
 
     public boolean verifyPlayer(Player player, String email) {
         if (playerAlreadyRegistered(player)) {
-            player.sendMessage(ALREADY_REGISTERED.getReference());
+            player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
+            return false;
+        }
+
+        if (emailAlreadyInUseByAnotherPlayer(player, email)) {
+            player.sendMessage(ChatColor.RED + get(EMAIL_ALREADY_REGISTERED));
             return false;
         }
 
@@ -59,8 +66,14 @@ public class PlayerVerificationService {
         return true;
     }
 
+    private boolean emailAlreadyInUseByAnotherPlayer(Player player, String email) {
+        Optional<UUID> playerUUIDThatContainsEmail = playerManager.getPlayerUUIDAssociatedToEmail(email);
+
+        return playerUUIDThatContainsEmail.isPresent() && !playerUUIDThatContainsEmail.get().equals(player.getUniqueId());
+    }
+
     public void verifyExistingPlayer(Player player) {
-        String email = playerManager.getPlayerEmail(player.getUniqueId());
+        String email = playerManager.getPlayerEmail(player.getUniqueId().toString());
 
         requestOtpCode(player, email, NEW_OTP_GENERATED);
     }
@@ -106,9 +119,9 @@ public class PlayerVerificationService {
         player.sendMessage(ChatColor.LIGHT_PURPLE + get(PASSWORD_REQUIREMENTS));
 
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
-            playerManager.setPasswordForPlayer(player.getUniqueId(), null);
+            playerManager.setPasswordForPlayer(player.getUniqueId().toString(), null);
         } else {
-            playerManager.setEmailForPlayer(player.getUniqueId(), verificationCodes.get(code).email());
+            playerManager.setEmailForPlayer(player.getUniqueId().toString(), verificationCodes.get(code).email());
         }
 
         verificationCodes.remove(code);

@@ -74,7 +74,7 @@ public class PlayerPasswordService {
 
     private void setPasswordForPlayerAndAuthenticateThem(Player player, String password) {
         playerManager.removeFromOnlineUnauthenticatedPlayers(player);
-        playerManager.setPasswordForPlayer(player.getUniqueId(), passwordService.generateHashFor(password));
+        playerManager.setPasswordForPlayer(player.getUniqueId().toString(), passwordService.generateHashFor(password));
         player.sendMessage(ChatColor.GREEN + get(PASSWORD_CREATED_WELCOME));
         player.sendMessage(ChatColor.GREEN + get(LOGIN_BACK_HINT));
     }
