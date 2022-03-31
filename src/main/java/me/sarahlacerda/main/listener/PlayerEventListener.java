@@ -148,15 +148,15 @@ public class PlayerEventListener implements Listener {
     public void onPlayerCommand(PlayerCommandPreprocessEvent playerCommandPreprocessEvent) {
         if (playerManager.isUnauthenticated(playerCommandPreprocessEvent.getPlayer())) {
             List<String> allowedCommands = List.of(
-                    "/registrar",
+                    "/registrar ",
                     "/reg ",
                     "/register ",
                     "/code ",
                     "/password ",
                     "/senha ",
                     "/pass ",
-                    "/resetsenha ",
-                    "/resetpassword ",
+                    "/resetsenha",
+                    "/resetpassword",
                     "/login ");
 
             for (String allowedCommand : allowedCommands) {
