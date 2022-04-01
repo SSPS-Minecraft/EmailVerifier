@@ -36,7 +36,7 @@ public class PlayerPasswordService {
         if (!passwordService.validateRequirements(password)) {
             player.sendMessage(ChatColor.RED + get(PASSWORD_DOES_NOT_MEET_REQUIREMENTS));
             player.sendMessage(ChatColor.LIGHT_PURPLE + get(PASSWORD_REQUIREMENTS));
-            return false;
+            return true;
         }
 
         return createPasswordForPlayer(player, password);
@@ -60,7 +60,7 @@ public class PlayerPasswordService {
         if (playerManager.playerAlreadyRegistered(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
             player.sendMessage(ChatColor.DARK_PURPLE + get(FORGOT_PASSWORD_HINT));
-            return false;
+            return true;
         }
 
         if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
@@ -69,7 +69,7 @@ public class PlayerPasswordService {
         }
 
         player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_SETTING_PASSWORD));
-        return false;
+        return true;
     }
 
     private void setPasswordForPlayerAndAuthenticateThem(Player player, String password) {

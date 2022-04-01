@@ -27,15 +27,15 @@ public class PlayerLoginService {
                 return true;
             } else {
                 player.sendMessage(ChatColor.RED + get(WRONG_PASSWORD));
-                return false;
+                return true;
             }
         } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
-            return false;
+            return true;
         }
 
         player.sendMessage(ChatColor.RED + get(MUST_VERIFY_EMAIL_BEFORE_LOGIN));
-        return false;
+        return true;
     }
 
     private boolean passwordsMatch(String passwordProvided, Player player) {

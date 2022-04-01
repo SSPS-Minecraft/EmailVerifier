@@ -50,12 +50,12 @@ public class PlayerVerificationService {
     public boolean verifyPlayer(Player player, String email) {
         if (playerAlreadyRegistered(player)) {
             player.sendMessage(ChatColor.RED + get(ALREADY_REGISTERED));
-            return false;
+            return true;
         }
 
         if (emailAlreadyInUseByAnotherPlayer(player, email)) {
             player.sendMessage(ChatColor.RED + get(EMAIL_ALREADY_REGISTERED));
-            return false;
+            return true;
         }
 
         if (!emailValid(email, player)) {
@@ -157,7 +157,7 @@ public class PlayerVerificationService {
         }
 
         askPlayerToWaitMore(player, emailConfig.getEmailSentCooldownInSeconds() - elapsedTimeSinceEmailWasSent);
-        return false;
+        return true;
     }
 
     private void askPlayerToWaitMore(Player player, long waitHowLongInSeconds) {
