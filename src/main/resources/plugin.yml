@@ -8,7 +8,7 @@ commands:
   register:
     description: Command to request a one time verification code for your account via e-mail
     usage: /<command> <email>
-    aliases: [ registrar, reg ]
+    aliases: [ registrar, reg, email ]
   code:
     description: Command to verify your account with the one time code received via your e-mail
     usage: /<command> <code>
