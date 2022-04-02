@@ -24,11 +24,10 @@ public class PlayerLoginService {
             if (passwordsMatch(password, player)) {
                 playerManager.removeFromOnlineUnauthenticatedPlayers(player);
                 player.sendMessage(ChatColor.GREEN + get(YOU_ARE_IN));
-                return true;
             } else {
                 player.sendMessage(ChatColor.RED + get(WRONG_PASSWORD));
-                return true;
             }
+            return true;
         } else if (playerManager.playerAlreadyEmailVerifiedButHasNoPasswordSet(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + get(NO_PASSWORD_SET_YET));
             return true;
