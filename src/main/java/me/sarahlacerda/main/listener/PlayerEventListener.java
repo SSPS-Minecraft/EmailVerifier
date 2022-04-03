@@ -151,6 +151,7 @@ public class PlayerEventListener implements Listener {
                     "/registrar ",
                     "/reg ",
                     "/register ",
+                    "/email ",
                     "/code ",
                     "/password ",
                     "/senha ",
