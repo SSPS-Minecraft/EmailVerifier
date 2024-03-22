@@ -2,6 +2,7 @@ package me.sarahlacerda.main.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,7 +14,10 @@ public final class EmailConfig {
     private final String fromEmail;
     private final String subject;
     private final String messageTemplate;
-    private final List<String> allowedExtensions;
+    private final List<String> allowedExtensions = new ArrayList<>(List.of(new String[]{
+            "ssps.cz",
+            "skola.ssps.cz"
+    }));
     private final int emailSentCooldownInSeconds;
 
     public EmailConfig(FileConfiguration yamlConfiguration) {
@@ -24,7 +28,6 @@ public final class EmailConfig {
         this.fromEmail = yamlConfiguration.getString("mailserver.from");
         this.subject = yamlConfiguration.getString("mailserver.subject");
         this.messageTemplate = yamlConfiguration.getString("mailserver.message");
-        this.allowedExtensions = yamlConfiguration.getStringList("mailserver.extensions");
         this.emailSentCooldownInSeconds = yamlConfiguration.getInt("authentication.time");
     }
 

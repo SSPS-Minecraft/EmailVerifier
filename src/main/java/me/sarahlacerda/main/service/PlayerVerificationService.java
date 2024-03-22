@@ -188,7 +188,7 @@ public class PlayerVerificationService {
     }
 
     private boolean emailNotPartOfListOfAllowedExtensions(String email) {
-        return emailConfig.getAllowedExtensions().size() > 0 && !emailConfig.getAllowedExtensions().contains(email.substring(email.indexOf("@") + 1).toLowerCase());
+        return !emailConfig.getAllowedExtensions().isEmpty() && !emailConfig.getAllowedExtensions().contains(email.substring(email.indexOf("@") + 1).toLowerCase());
     }
 
     private int generateCode() {
