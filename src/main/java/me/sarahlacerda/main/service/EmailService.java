@@ -48,7 +48,7 @@ public class EmailService {
         Message mimeMessage = new MimeMessage(session);
 
         mimeMessage.setFrom(new InternetAddress(from));
-        mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+        mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient.replaceAll("skola.ssps.cz", "ssps.cz")));
 
         mimeMessage.setSubject(subject);
 
