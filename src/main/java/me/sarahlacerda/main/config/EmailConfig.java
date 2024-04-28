@@ -98,7 +98,6 @@ public final class EmailConfig {
                 "fromEmail=" + fromEmail + ", " +
                 "subject=" + subject + ", " +
                 "messageTemplate=" + messageTemplate + ", " +
-                "allowedExtensions=" + allowedExtensions + ", " +
                 "emailSentCooldownInSeconds=" + emailSentCooldownInSeconds + ']';
     }
 

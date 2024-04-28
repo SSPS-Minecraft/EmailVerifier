@@ -2,11 +2,8 @@ mailserver:
   username: "username"
   password: "password"
   from: "email@email.com"
-  subject: "Your Minecraft Verification Code"
-  message: "Your verification code is %CODE%\nItExpires in 5 minutes"
-  extensions: 
-    - "myschool.edu"
-    - "myschool.admin.edu"
+  subject: "Ověřovací kód SSPŠ Minecraft"
+  message: "Váš ověřovací kód je <b>%CODE%</b>.<br>Kód vyprší za 5 minut. Pokud jste tento kód nežádali, můžete ho ignorovat."
   host: "smtp"
   port: 578
 authentication:
