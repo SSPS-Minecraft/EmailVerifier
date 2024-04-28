@@ -30,6 +30,7 @@ public enum ConsoleMessages {
     KICKED_TO_MAKE_ROOM("kicked_to_make_room"),
     YOU_ARE_IN("you_are_in"),
     WRONG_PASSWORD("wrong_password"),
+    ALREADY_AUTHENTICATED("already_authenticated"),
     MUST_VERIFY_EMAIL_BEFORE_LOGIN("must_verify_email_before_login"),
     INVALID_LOGIN_ARGUMENTS("invalid_login_arguments"),
     INVALID_CODE_ENTERED("invalid_code_entered"),
